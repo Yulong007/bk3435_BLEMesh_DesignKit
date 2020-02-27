@@ -1,0 +1,19 @@
+ #***************************************************************************************
+ # @file sourcelist.txt
+ #
+ # @brief This file lists up all the source files that will be compiled and built for
+ #        Generic Client Models
+ #
+ # Copyright (C) RivieraWaves 2017-2019
+ #
+ #***************************************************************************************
+
+    mm_genc.c
+    mm_genc_oo.c
+    mm_genc_lvl.c
+    mm_genc_plvl.c
+    mm_genc_dtt.c
+    mm_genc_poo.c
+    mm_genc_bat.c
+    mm_genc_loc.c
+    mm_genc_prop.c

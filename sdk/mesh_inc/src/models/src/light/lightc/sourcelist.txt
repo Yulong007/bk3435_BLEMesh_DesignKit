@@ -1,0 +1,15 @@
+#***************************************************************************************
+# @file sourcelist.txt
+#
+# @brief This file lists up all the source files that will be compiled and built for
+#        Lighting Client Models
+#
+# Copyright (C) RivieraWaves 2017-2019
+#
+#***************************************************************************************
+
+mm_lightc.c
+mm_lightc_ln.c
+mm_lightc_ctl.c
+mm_lightc_hsl.c
+mm_lightc_xyl.c

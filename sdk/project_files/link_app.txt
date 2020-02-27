@@ -1,0 +1,64 @@
+
+SECTIONS 0x1e200 ALIGN 32
+{
+	;if u want to modify the base address of section, you may pay attention to
+    ROM_SYS  0x1e200
+    {
+        *boot_vectors.o(SYS_BOOT,+FIRST)	
+				
+        *boot_handlers.o(SYS_BOOT)
+    }
+
+	FAST_CALL_SEG 0x0001E500 FIXED ALIGNALL 32 { ;Do not change the section order, for image;	
+	   *(sys_fiq_entry)   
+       *(sys_irq_entry)   
+    }
+	
+    ROM  +0
+    {
+        *.o(+RO)
+    } 
+
+    RAM_DATA  0x00400800 
+    {
+        *(+RW)
+    }
+    
+    RAM_BSS  +0 
+    {
+        *(+ZI)
+    } 
+	
+    ScatterAssert((LoadLength(ROM) + LoadLength(RAM_DATA)) < 0x20000 )
+	
+	
+	
+    RAM_STACK_UNUSED 0x0040BFFC - 0x1F0 - 0x1F0 - 0x6F0 - 0x20  EMPTY 0x20 ;
+    {
+    } 
+
+    RAM_STACK_SVC 0x0040BFFC - 0x1F0 - 0x1F0 - 0x6F0  EMPTY 0x6F0 ;
+    {
+    } 
+ 
+    RAM_STACK_IRQ 0x0040BFFC - 0x1F0 - 0x1F0  EMPTY 0x1F0 ;
+    {
+    } 
+	
+	RAM_STACK_FIQ 0x0040BFFC - 0x1F0 EMPTY 0x1F0
+    {
+	
+    }
+		
+	ScatterAssert((ImageLength(RAM_DATA) + ImageLength(RAM_BSS) + ImageLength(RAM_STACK_UNUSED) + 
+		ImageLength(RAM_STACK_SVC) + ImageLength(RAM_STACK_IRQ) + ImageLength(RAM_STACK_FIQ)) <  (46*1024) )
+	
+	
+	;RAM_BSS_1  0x00815000
+    ;{
+    ;   *(ke_heap)
+    ;} 
+    ;	ScatterAssert(ImageLength(RAM_BSS_1) < 0x3000)
+}
+
+

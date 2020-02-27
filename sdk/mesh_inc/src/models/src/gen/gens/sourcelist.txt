@@ -1,0 +1,19 @@
+ #***************************************************************************************
+ # @file sourcelist.txt
+ #
+ # @brief This file lists up all the source files that will be compiled and built for
+ #        Generic Server Models
+ #
+ # Copyright (C) RivieraWaves 2017-2019
+ #
+ #***************************************************************************************
+
+    mm_gens.c
+    mm_gens_oo.c
+    mm_gens_lvl.c
+    mm_gens_dtt.c
+    mm_gens_plvl.c
+    mm_gens_poo.c
+    mm_gens_bat.c
+    mm_gens_loc.c
+    mm_gens_prop.c
