@@ -124,12 +124,12 @@ static void app_mesh_adv_report_cb(const struct adv_report* p_report)
     //                    p_report->adv_addr.addr[4], p_report->adv_addr.addr[5]);
 }
 
-void user_models_bind_app_key(void)
+void user_models_bind_app_key(uint16_t app_key_id)
 {
     m_lid_t app_key_lid;
     uint16_t status;
 
-    status = m_tb_key_app_find(0, &app_key_lid); // 0 not change
+    status = m_tb_key_app_find(app_key_id, &app_key_lid); // 0 not change
 
     MESH_APP_PRINT_INFO("user_models_bind_app_key  app_key_lid = 0x%x,status:%x\n", app_key_lid, status);
 
@@ -174,11 +174,11 @@ uint16_t user_models_subs_group_addr(m_lid_t m_lid, uint16_t addr)
     return status;
 }
 
-uint16_t user_models_publish_set(m_lid_t m_lid, uint16_t addr)
+uint16_t user_models_publish_set(uint16_t app_key_id, m_lid_t m_lid, uint16_t addr)
 {
     uint16_t status;
     m_lid_t app_key_lid;
-    status = m_tb_key_app_find(0, &app_key_lid); // 0 not change
+    status = m_tb_key_app_find(app_key_id, &app_key_lid); // 0 not change
     status = m_tb_mio_set_publi_param(m_lid, addr, NULL,
                                       app_key_lid, M_TTL_DEFAULT, 54,
                                       0,
@@ -361,12 +361,7 @@ static int app_mesh_msg_node_reset_handler(ke_msg_id_t const msgid,
     light_unBind_complete();
     quick_onoff_count = 0;
     light_state_nv_store(FLASH_LIGHT_PARAM_TYPE_POWER_ON_COUNT);
-    //wdt_reset(0x8fff);
-
-    //reboot from 0x00000000
-    void (*pReset)(void);
-    pReset = (void * )(0x0);
-    pReset();
+    wdt_reset(0x1ff);
 
     return (KE_MSG_CONSUMED);
 }
@@ -399,13 +394,13 @@ static int app_mesh_msg_key_ind_handler(ke_msg_id_t const msgid,
             m_tb_key_app_t *app_key = (m_tb_key_app_t *)param;
             MESH_APP_PRINT_INFO("%s\n", mesh_buffer_to_hex(r_key, MESH_KEY_LEN));
 #if (ALI_MESH && (!TEST_MESH_OTA))
-            user_models_bind_app_key();
+            user_models_bind_app_key(app_key->app_key_id);
             user_models_subs_group_addr(g_ln_mdl_lid, 0xc000);
 #if 1
 
             user_models_subs_group_addr(g_ctl_mdl_lid, 0xc000);
             user_models_subs_group_addr(g_vdr_lid, 0xc000);
-            user_models_publish_set(g_vdr_lid, 0xF000);
+            user_models_publish_set(app_key->app_key_id, g_vdr_lid, 0xF000);
 #endif /* #if 0 */
 #endif
         } break;
