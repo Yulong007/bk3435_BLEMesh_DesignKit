@@ -48,7 +48,7 @@ struct rom_env_tag
 
 //  uint8_t (*Read_Uart_Buf)(void);
 
-    uint8_t  (*Read_Uart_Buf)(uint8_t *buf, uint16_t len);
+    uint16_t (*Read_Uart_Buf)(uint8_t *buf, uint16_t len);
 
     void (*uart_clear_rxfifo)(void);
 };

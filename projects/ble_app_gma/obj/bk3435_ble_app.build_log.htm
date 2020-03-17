@@ -1,0 +1,58 @@
+<html>
+<body>
+<pre>
+<h1>µVision Build Log</h1>
+<h2>Tool Versions:</h2>
+IDE-Version: ¦ÌVision V5.26.2.0
+Copyright (C) 2018 ARM Ltd and ARM Germany GmbH. All rights reserved.
+License Information: Huang Yulong, Beken, LIC=8VRDY-IWGV8-2YKV0-BXUW4-Y0SQA-VKNDC
+ 
+Tool Versions:
+Toolchain:       MDK-ARM Plus  Version: 5.26.2.0
+Toolchain Path:  D:\Software\Keil_v5\ARM\ARMCC\Bin
+C Compiler:      Armcc.exe V5.06 update 6 (build 750)
+Assembler:       Armasm.exe V5.06 update 6 (build 750)
+Linker/Locator:  ArmLink.exe V5.06 update 6 (build 750)
+Library Manager: ArmAr.exe V5.06 update 6 (build 750)
+Hex Converter:   FromElf.exe V5.06 update 6 (build 750)
+CPU DLL:         SARM.DLL V5.26.2.0
+Dialog DLL:      DARMP3.DLL
+Target DLL:      Segger\JLTAgdi.dll V1.61.0.0
+Dialog DLL:      TARMP3.DLL V1.4.0.0
+ 
+<h2>Project:</h2>
+D:\YL_Work\code\bk3435\projects\ble_app_gma\bk3435.uvproj
+Project File Date:  03/13/2020
+
+<h2>Output:</h2>
+*** Using Compiler 'V5.06 update 6 (build 750)', folder: 'D:\Software\Keil_v5\ARM\ARMCC\Bin'
+Build target 'BK3435_app'
+compiling app_mesh.c...
+linking...
+.\obj\bk3435_ble_app.axf: Warning: L6304W: Duplicate input file .\obj\arch_main_1.o ignored.
+Program Size: Code=156228 RO-data=22124 RW-data=444 ZI-data=44764  
+Finished: 0 information, 1 warning and 0 error messages.
+After Build - User command #1: fromelf --bin --output .\output\app\bk3435_ble_app.bin .\obj\bk3435_ble_app.axf
+After Build - User command #2: .\output\encrypt_app.bat
+D:\YL_Work\code\bk3435\projects\ble_app_gma>.\output\BinConvert_3435_OAD  -oad .\output\bim\bk3435_ble_bim.bin  .\output\stack\bk3435_ble_stack.bin  .\output\app\bk3435_ble_app.bin -m 0x2F00 -l 0x23E00 -v 0x1116 -rom_v 0x0007 -e 00000000 00000000 00000000 00000000 
+cmd_bin_oad.stack_file_addr :0x2f00
+binary version hex:0x1116; dec:4374
+Arm Image Binary will be converted to OAD format binary file.....
+cmd_bin_oad.stack_file_addr=2f00
+boot_bin_len=2044
+add stack bin start
+        Encrypt Seccessfully!
+        File Size: 0x5473c
+oad_stack_app_bin_len=51600
+oad_app_bin_len=2e610
+24 d6 82 8d 16 11 84 b9 42 42 42 42 ff ff 07 00 /**< @CREATE_FILE_SUCCESS */
+/**< @Download flash file:.\output\app\bk3435_ble_app_merge_crc.bin
+/**< @OAD file :.\output\app\bk3435_ble_app_stack_oad.bin,CRC = 0x423bc260
+/**< @OAD file :.\output\app\bk3435_ble_app_oad.bin,CRC = 0x8d82d624
+/**< @author <gang.cheng@bekencorp.com> */
+/**< @version v0.3 */
+".\obj\bk3435_ble_app.axf" - 0 Error(s), 1 Warning(s).
+Build Time Elapsed:  00:00:02
+</pre>
+</body>
+</html>

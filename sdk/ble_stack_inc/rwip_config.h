@@ -225,6 +225,18 @@
 //   <e> CFG_GPIO_DEBUG_MSG
 //   <i> enable CFG_GPIO_DEBUG_MSG
 //   </e>
+
+#if ( 1 )
+#define CFG_PRF_GMAS
+#endif
+
+#if defined(CFG_PRF_GMAS)
+#define BLE_GMA_SERVER        1
+#else
+#define BLE_GMA_SERVER        0
+#endif // defined(CFG_PRF_GMAS)
+
+
 #if defined(CFG_UART_DBG_PRINTF)
 #define CFG_DBG
 #endif

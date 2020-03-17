@@ -1,0 +1,55 @@
+<html>
+<body>
+<pre>
+<h1>µVision Build Log</h1>
+<h2>Tool Versions:</h2>
+IDE-Version: ¦ÌVision V5.26.2.0
+Copyright (C) 2018 ARM Ltd and ARM Germany GmbH. All rights reserved.
+License Information: Huang Yulong, Beken, LIC=8VRDY-IWGV8-2YKV0-BXUW4-Y0SQA-VKNDC
+ 
+Tool Versions:
+Toolchain:       MDK-ARM Plus  Version: 5.26.2.0
+Toolchain Path:  D:\Software\Keil_v5\ARM\ARMCC\Bin
+C Compiler:      Armcc.exe V5.06 update 6 (build 750)
+Assembler:       Armasm.exe V5.06 update 6 (build 750)
+Linker/Locator:  ArmLink.exe V5.06 update 6 (build 750)
+Library Manager: ArmAr.exe V5.06 update 6 (build 750)
+Hex Converter:   FromElf.exe V5.06 update 6 (build 750)
+CPU DLL:         SARM.DLL V5.26.2.0
+Dialog DLL:      DARMP3.DLL
+Target DLL:      Segger\JLTAgdi.dll V1.61.0.0
+Dialog DLL:      TARMP3.DLL V1.4.0.0
+ 
+<h2>Project:</h2>
+D:\code\bk3435_BLEMesh_DesignKit_v1.0.0\bk3435_BLEMesh_DesignKit\projects\ble_app_mesh_sdk_light\bk3435.uvproj
+Project File Date:  03/13/2020
+
+<h2>Output:</h2>
+*** Using Compiler 'V5.06 update 6 (build 750)', folder: 'D:\Software\Keil_v5\ARM\ARMCC\Bin'
+Build target 'BK3435_app'
+After Build - User command #1: fromelf --bin --output .\output\app\bk3435_ble_app.bin .\obj\bk3435_ble_app.axf
+*** Error: CreateProcess failed, Command: 'fromelf --bin --output .\output\app\bk3435_ble_app.bin .\obj\bk3435_ble_app.axf'
+After Build - User command #2: .\output\encrypt_app.bat
+D:\code\bk3435_BLEMesh_DesignKit_v1.0.0\bk3435_BLEMesh_DesignKit\projects\ble_app_mesh_sdk_light>.\output\BinConvert_3435_OAD  -oad .\output\bim\bk3435_ble_bim.bin  .\output\stack\bk3435_ble_stack.bin  .\output\app\bk3435_ble_app.bin -m 0x2F00 -l 0x23E00 -v 0x1111 -rom_v 0x0007 -e 00000000 00000000 00000000 00000000 
+cmd_bin_oad.stack_file_addr :0x2f00
+binary version hex:0x1111; dec:4369
+Arm Image Binary will be converted to OAD format binary file.....
+cmd_bin_oad.stack_file_addr=2f00
+boot_bin_len=2044
+add stack bin start
+        Encrypt Seccessfully!
+        File Size: 0x4f01c
+oad_stack_app_bin_len=4bf00
+oad_app_bin_len=28f10
+78 a2 35 4e 11 11 c4 a3 42 42 42 42 ff ff 07 00 /**< @CREATE_FILE_SUCCESS */
+/**< @Download flash file:.\output\app\bk3435_ble_app_merge_crc.bin
+/**< @OAD file :.\output\app\bk3435_ble_app_stack_oad.bin,CRC = 0xe65cb107
+/**< @OAD file :.\output\app\bk3435_ble_app_oad.bin,CRC = 0x4e35a278
+/**< @author <gang.cheng@bekencorp.com> */
+/**< @version v0.3 */
+".\obj\bk3435_ble_app.axf" - 1 Error(s), 0 Warning(s).
+Target not created.
+Build Time Elapsed:  00:00:01
+</pre>
+</body>
+</html>

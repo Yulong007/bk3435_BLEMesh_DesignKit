@@ -63,7 +63,7 @@
 #define CFG_BLE_MESH_MDL_GENC_LVL
 #define CFG_BLE_MESH_MDL_GENC_PLVL
 #define CFG_BLE_MESH_MDL_GENC_POO
-
+ 
 /******************************************************************************
  *############################################################################*
  *                             SYSTEM MACRO CTRL                              *

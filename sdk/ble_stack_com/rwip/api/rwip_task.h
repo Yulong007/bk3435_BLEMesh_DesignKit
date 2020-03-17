@@ -169,6 +169,8 @@ enum TASK_API_ID
 
     TASK_ID_CGMS         = 75,   // Continuous Glucose Monitoring Server Task
     TASK_ID_CGMC         = 76,   // Continuous Glucose Monitoring Client Task
+    
+    TASK_ID_GMAS         = 77,   //Alibaba GMA SERVICE
 
     TASK_ID_MESH         = 200,  // Mesh Task
 

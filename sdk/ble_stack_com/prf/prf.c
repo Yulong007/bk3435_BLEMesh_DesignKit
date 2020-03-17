@@ -37,6 +37,10 @@
 #include "uart.h"
 #include "mesh_log.h"
 
+#if (BLE_GMA_SERVER)
+extern const struct prf_task_cbs* gmas_prf_itf_get(void);
+#endif //(BLE_GMAS_SERVER)
+
 #if (BLE_OADS_SERVER)
 extern const struct prf_task_cbs *oads_prf_itf_get(void);
 #endif // (BLE_OADS_SERVER)
@@ -311,6 +315,12 @@ static const struct prf_task_cbs *prf_itf_get(uint16_t task_id)
 
     switch (KE_TYPE_GET(task_id))
     {
+#if (BLE_GMA_SERVER)
+        case TASK_ID_GMAS:
+           	prf_cbs = gmas_prf_itf_get();
+         	break;
+#endif // (BLE_GMA_SERVER)
+
 #if (BLE_OADS_SERVER)
         case TASK_ID_OADS:
             prf_cbs = oads_prf_itf_get();

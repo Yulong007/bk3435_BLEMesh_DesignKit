@@ -146,9 +146,7 @@ __STATIC m_fnd_blob_env_t *p_m_fnd_blob_env;
 
 __STATIC nvds_mesh_ota_tag_t ota_info;
 
-
 uint8_t  crc_buf[4096];
-
 
 /*
  * STATIC FUNCTION DEFINITIONS
@@ -157,13 +155,10 @@ uint8_t  crc_buf[4096];
 
 __STATIC void m_fnd_blob_process_next(void);
 
-
-
 /*
  * STATIC FUNCTIONS
  ****************************************************************************************
  */
-
 
 /**
  ****************************************************************************************
@@ -180,7 +175,6 @@ __STATIC uint16_t m_fnd_blob_buf_alloc(mesh_tb_buf_t **pp_buf, uint16_t data_len
     // Try to allocate a buffer and return the status
     return (mesh_tb_buf_alloc(pp_buf, M_FND_BUF_HEAD_LEN, data_len, 0));
 }
-
 
 /**
  ****************************************************************************************
@@ -205,7 +199,6 @@ __STATIC void m_fnd_blob_send(mesh_tb_buf_t *p_buf, uint16_t opcode)
                          p_buf, p_env->app_lid, dst, false, false);
 }
 
-
 /**
  ****************************************************************************************
  * @brief Push a buffer for transmission (publication).
@@ -225,7 +218,6 @@ __STATIC void m_fnd_blob_publish(mesh_tb_buf_t *p_buf, uint16_t opcode)
     }
 }
 
-
 /**
  ****************************************************************************************
  * @brief
@@ -235,7 +227,6 @@ __STATIC void m_fnd_blob_publish(mesh_tb_buf_t *p_buf, uint16_t opcode)
  ****************************************************************************************
  */
 
-
 /**
  ****************************************************************************************
  * @brief
@@ -244,7 +235,6 @@ __STATIC void m_fnd_blob_publish(mesh_tb_buf_t *p_buf, uint16_t opcode)
  * @param[in]
  ****************************************************************************************
  */
-
 
 /*
 __STATIC m_fnd_blob_obj_trans_status_t m_fnd_blob_get_obj_trans_status()
@@ -602,8 +592,6 @@ __STATIC void m_fnd_blob_handler_obj_obj(mesh_tb_buf_t *p_buf, uint8_t opcode)
 
     }
 
-
-
     // Process next received message
     m_fnd_blob_process_next();
 }
@@ -823,7 +811,6 @@ __STATIC void m_fnd_blob_handler_obj_chunk(mesh_tb_buf_t *p_buf, uint8_t opcode)
             if (p_m_fnd_blob_env->Block_Checksum_Value == crc_value)
             {
                 MESH_MODEL_PRINT_DEBUG("calcuCrc Success!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\r\n");
-                //  while(1);
             }
             else
             {
@@ -1164,9 +1151,6 @@ uint16_t m_fnd_blob_init(bool reset)
             MESH_MODEL_PRINT_DEBUG("Current_Chunk_Mask = 0x%x\r\n", ota_info.Current_Chunk_Mask);
             MESH_MODEL_PRINT_DEBUG("Block_Checksum_Value = 0x%x\r\n", ota_info.Block_Checksum_Value);
         }
-
-
-
 
         // Register the model
         m_api_register_model(M_FND_BLOB_TRANSFER_MODEL_ID, 0, false, &m_fnd_blob_cb,
