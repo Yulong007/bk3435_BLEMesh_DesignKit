@@ -54,7 +54,7 @@
 #undef CFG_BLE_MESH_MDL_GENC
 #undef CFG_BLE_MESH_MDL_LIGHTC
  
-#define CFG_MESH_MEM_TB_BUF_DBG
+#undef CFG_MESH_MEM_TB_BUF_DBG
  
 
 /******************************************************************************

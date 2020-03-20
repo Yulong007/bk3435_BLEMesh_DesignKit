@@ -110,7 +110,7 @@
 /// Maximum number of network keys supported by Mesh stack
 #define M_TB_KEY_MAX_NB_NET                  (M_SUBNET_NB_MAX)
 /// Maximum number of Application keys supported by Mesh stack
-#define M_TB_KEY_MAX_NB_APP                 (8)
+#define M_TB_KEY_MAX_NB_APP                 (5)
 /// Total number of keys
 #define M_TB_KEY_MAX_NB                     (M_TB_KEY_MAX_NB_DEV + M_TB_KEY_MAX_NB_NET + M_TB_KEY_MAX_NB_APP)
 /// Maximum number of Bound between Application and Model supported by Mesh stack

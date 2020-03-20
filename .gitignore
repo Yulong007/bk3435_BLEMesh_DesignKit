@@ -2,3 +2,10 @@
 *.o
 *.crf
 *.orig
+*.htm
+*.dep
+*.axf
+*.out
+*.map
+*.lnp
+*.lst

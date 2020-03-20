@@ -408,7 +408,7 @@
 #define MESH_MODEL_NB_MAX                    (30)
 
 /// Maximum number of buffer block that can be allocated by the Buffer Manager
-#define MESH_BUF_BLOCK_NB_MAX                (5)
+#define MESH_BUF_BLOCK_NB_MAX                (1)
 /// Size of data part of "long" buffers
 /// Value must be a multiple of 4
 #define MESH_BUF_LONG_SIZE                   (152)
@@ -419,12 +419,12 @@
 /// Number of "small" buffer to allocate during mesh stack initialization
 #define MESH_BUF_INIT_LONG_NB                (8)
 /// Number of "long" buffer to allocate during mesh stack initialization
-#define MESH_BUF_INIT_SMALL_NB               (32)
+#define MESH_BUF_INIT_SMALL_NB               (20)
 #else
 /// Number of "small" buffer to allocate during mesh stack initialization
 #define MESH_BUF_INIT_LONG_NB                (4)
 /// Number of "long" buffer to allocate during mesh stack initialization
-#define MESH_BUF_INIT_SMALL_NB               (30)
+#define MESH_BUF_INIT_SMALL_NB               (20)
 // The remaining threshold value
 #define MESH_BUF_INIT_SMALL_REMAIN_THRESHOLD (MESH_BUF_INIT_SMALL_NB / 3)
 #endif //(BLE_MESH_FRIEND)
