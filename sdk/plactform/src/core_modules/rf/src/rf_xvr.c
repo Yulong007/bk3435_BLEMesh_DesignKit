@@ -50,6 +50,7 @@
 #include "BK3435_reg.h"           // Platform register
 #include "icu.h"
 #include "rwip_config.h" // stack configuration
+#include "mesh_general_api.h"
 
 /**
 
@@ -392,8 +393,16 @@ void init_analog_xvr_reg(void)
         mHWreg_Assign_XVR_Regsiter(03, 0x2A1CD462);//0x6A1CD462); //audio
         XVR_ANALOG_REG_BAK[0x03] = 0x2A1CD462;
 
-        mHWreg_Assign_XVR_Regsiter(04, 0x7F93D6B4);// 0x7F9356b7  20190606
+        //mHWreg_Assign_XVR_Regsiter(04, 0x7F93D6B4);// 0x7F9356b7  20190606
+        //XVR_ANALOG_REG_BAK[0x04] = 0x7F93D6B4;
+			#if (POWER_3P5_ENABLE)
+	    mHWreg_Assign_XVR_Regsiter(04, 0x7F93d730); 	///3.5DB ///20 0314
+        XVR_ANALOG_REG_BAK[0x04] = 0x7F93d730;
+	#else
+	        mHWreg_Assign_XVR_Regsiter(04, 0x7F93D6B4);// 0x7F9356b7  20190606
         XVR_ANALOG_REG_BAK[0x04] = 0x7F93D6B4;
+	
+	#endif
 
         mHWreg_Assign_XVR_Regsiter(05, 0x48285540);//0x48295540);// 0x48285540
         XVR_ANALOG_REG_BAK[0x05] = 0x48285540;
@@ -587,5 +596,38 @@ void CLK32K_AutoCali_init(void)
     XVR_REG0C = XVR_ANALOG_REG_BAK[0x0C];
 
 }
+
+
+
+
+void bk3435_set_power(uint8_t power_level)
+{
+	uint32_t val = 0;
+	uint32_t reg = XVR_ANALOG_REG_BAK[0x04];
+
+	XVR_REG24 &= ~(0x1 << 20);
+	XVR_REG04 = reg | (0x1 << 29);
+	val |= (power_level << 7);
+	XVR_REG24 &= ~(0xf << 7);
+	XVR_REG24 |= val;
+}
+
+
+void bk3435_singleWaveCfg(uint8_t freq, uint8_t power_level)
+{
+	uint32_t val = 0;
+
+	val |= freq;
+	val |= (power_level<< 7);
+	//XVR_REG24 = val;                       ///delete powerlevel func ///2020 0316
+	XVR_REG25 |= (0x1<<12) |(0x1<<13);
+
+	while(1);
+}
+
+
+
+
+
 
 

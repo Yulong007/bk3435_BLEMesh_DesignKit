@@ -122,8 +122,8 @@ void light_cwrgb_init(void)
     return; //xuhai
 #endif
     //pwm_disable(0);
-    MESH_APP_PRINT_INFO("light_cwrgb_init\r\n");
-#if 1
+    //MESH_APP_PRINT_INFO("light_cwrgb_init\r\n");
+#if 0
     pwm1.channel = 0;       //channel1(pwm2)
     pwm1.mode = (1 << 0)    //channel1(pwm2) enbale;default pwm mode
                 | (1 << 4);    // select 16MHz
@@ -174,7 +174,7 @@ void light_cwrgb_init(void)
 
 #endif
 
-#if 1
+#if 0
     pwm6.channel = 5;           //channel5(PWM6)
     pwm6.mode = (1 << 0)            //pwm/timer enable
                 |(1<<1)       //pwm/timer int enable

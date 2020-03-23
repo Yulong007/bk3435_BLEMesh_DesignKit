@@ -244,34 +244,6 @@ void switch_clk(uint8_t clk)
 
 
 
-//配置单载波发射
-//freq:频点设置，双频点(2-80)
-//power:功率等级(0x1-0xf)
-void bk3435_singleWaveCfg(uint8_t freq, uint8_t power_level)
-{
-    uint32_t val = 0;
 
-    val |= freq;
-    val |= (power_level << 7);
-    XVR_REG24 = val;
-    XVR_REG25 |= (0x1 << 12) | (0x1 << 13);
-
-    while (1);
-}
-
-
-//修改发射功率
-//power_level:功率等级(0x0-0xf)
-void bk3435_set_power(uint8_t power_level)
-{
-    uint32_t val = 0;
-    uint32_t reg = XVR_ANALOG_REG_BAK[0x04];
-
-    XVR_REG24 &= ~(0x1 << 20);
-    XVR_REG04 = reg | (0x1 << 29);
-    val |= (power_level << 7);
-    XVR_REG24 &= ~(0xf << 7);
-    XVR_REG24 |= val;
-}
 
 

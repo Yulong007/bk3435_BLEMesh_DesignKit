@@ -628,7 +628,7 @@ void m_api_send_key_ind(uint8_t key_type, const void *key)
 
 void m_api_send_model_subs_ind(uint8_t status, uint32_t model_id, uint16_t element_addr, uint16_t subs_addr, m_lid_t model_lid)
 {
-    MESH_APP_PRINT_INFO("%s\r\n", __func__);
+    MESH_APP_PRINT_INFO("%s,subs_addr = 0x%x\r\n", __func__,subs_addr);
     // Allocate message
     m_api_model_subs_ind_t *p_ind = MAL_MSG_ALLOC(MESH_API_MODEL_SUBS_IND, m_api_model_subs_ind_t);
 

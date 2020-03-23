@@ -212,7 +212,7 @@ enum mesh_mdl_grp_event
 enum mesh_error
 {
     /// No Error
-    MESH_ERR_NO_ERROR                             = 0x0000,
+    MESH_ERR_NO_ERROR                                 = 0x0000,
 
     MESH_HCI_ERR_UNKNOWN_HCI_COMMAND                  = 0x0001,
     MESH_HCI_ERR_UNKNOWN_CONNECTION_ID                = 0x0002,
@@ -320,7 +320,7 @@ enum mesh_error
     /// The device cannot assign consecutive unicast addresses to all elements
     MESH_ERR_PROV_CANNOT_ASSIGN_ADDR              = MESH_ERR_(PROVISIONING, 0x08),
     /// The device cannot assign consecutive unicast addresses to all elements
-    MESH_ERR_PROV_INVALID_PARAM              = MESH_ERR_(PROVISIONING, 0x09),
+    MESH_ERR_PROV_INVALID_PARAM                   = MESH_ERR_(PROVISIONING, 0x09),
 
     /* **************************************************************** */
     /* *                     INTERNAL ERROR CODES                     * */

@@ -48,7 +48,7 @@ void wdt_feed(uint16_t wdt_cnt)
 {
     if (wdt_enable_status == 1)
     {
-        //  REG_AHB0_ICU_WDTCLKCON = 0x0 ; // Step1. WDT clock enable,
+        // REG_AHB0_ICU_WDTCLKCON = 0x0 ; // Step1. WDT clock enable,
         // REG_APB0_WDT_CFG  = wdt_cnt;   // Step2. Set WDT period=0xFF
         // Write WDT key: 0x5A firstly and 0xA5 secondly.
         REG_APB0_WDT_CFG = ((WDKEY_ENABLE1 << WDT_CONFIG_WDKEY_POSI)

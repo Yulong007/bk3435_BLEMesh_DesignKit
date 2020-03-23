@@ -181,7 +181,7 @@ uint8_t store_uart_ringbuf_data(uint8_t *buf, uint16_t len)
 * Return: uint8_t readed cnt
 * Others: void
 *******************************************************************************/
-uint8_t  read_uart_ringbuf_data(uint8_t *buf, uint16_t len)
+uint16_t  read_uart_ringbuf_data(uint8_t *buf, uint16_t len)
 {
     uint16_t unread_cnt;
     //Read 20 encode data from loop buffer to designated buffer
@@ -496,6 +496,13 @@ void uart_init(uint32_t baudrate)
         case 921600:
             baud_divisor = 17;
             break;
+	
+		case 1500000:
+			baud_divisor = 10;
+			break;
+		case 2000000:
+			baud_divisor = 7;
+			break;		
         default:
             baud_divisor = 0x89;
             break;

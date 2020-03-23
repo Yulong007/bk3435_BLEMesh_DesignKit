@@ -46,6 +46,11 @@
 #include "m_prov_int.h"     // Mesh Provisioning Internal Defines
 
 #include "wdt.h"
+#include "user_config.h"
+
+#define DEV_KEY    {0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0f, 0x10}
+#define NET_KEY    {0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88, 0x99, 0xaa, 0xbb, 0xcc, 0xdd, 0xff, 0x11}
+#define APP_KEY    {0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1a, 0x1b, 0x1c, 0x1d, 0x1f, 0x11}
 
 void app_mesh_enable(void)
 {
@@ -114,7 +119,6 @@ uint8_t app_relay_user_adv(uint16_t interval,uint8_t nb_tx,uint8_t data_len, con
             {
                 p_env->user_adv_finish = 0;
             }
-            
         }
     }
     MESH_APP_PRINT_DEBUG("%s,status:0x%x\r\n",__func__,status); 
@@ -139,3 +143,26 @@ sys_reset_src_t sys_check_reset_src(void)
         return SYS_RESET_BY_WDT;
     }
 }
+
+#if (UART_CMD_PROV_EN)
+extern void m_fnd_confs_cb_appkey_added(uint16_t status, m_lid_t app_key_lid);
+static void app_test_cb_netkey_added(uint16_t status, m_lid_t net_key_lid)
+{
+    if (status == MESH_ERR_NO_ERROR)
+    {
+    	 uint16_t app_key_id = 0;  ///6 -> 0 ///20 0313
+        uint8_t app_key[MESH_KEY_LEN] = APP_KEY;
+        m_tb_key_app_add(app_key_id, (const uint8_t *)&app_key[0], net_key_lid,
+                                          m_fnd_confs_cb_appkey_added);
+    }
+}
+  
+void app_test_add_key(void)
+{
+    uint8_t dev_key[MESH_KEY_LEN] = DEV_KEY;
+    uint16_t net_key_id = 0;
+    uint8_t net_key[MESH_KEY_LEN] = NET_KEY;
+    m_tb_key_dev_add((const uint8_t *)&dev_key[0], M_TB_KEY_DEVICE_LID);
+    m_tb_key_net_add(net_key_id, (const uint8_t *)&net_key[0], 0, app_test_cb_netkey_added);
+}
+#endif /* UART_CMD_PROV_EN */

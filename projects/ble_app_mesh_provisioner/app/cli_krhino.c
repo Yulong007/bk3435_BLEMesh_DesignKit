@@ -974,7 +974,7 @@ int cli_getchar(char *inbuf)
 {
 
     //*inbuf = Read_Uart_Buf();
-    uint8_t len;
+    uint16_t len;
     len = read_uart_ringbuf_data((uint8_t*)inbuf, 1);
     if (len != 0)
     {

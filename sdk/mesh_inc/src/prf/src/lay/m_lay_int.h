@@ -558,6 +558,9 @@ void m_lay_proxy_connect_api_net(const m_lay_net_api_t *p_api);
 
 #endif // (BLE_MESH_GATT_PROXY)
 
+void m_lay_ltrans_set_nb_set_retrans(uint8_t nb_retrans);
+
+uint8_t m_lay_ltrans_get_nb_retrans(void);
 /*
  * API AND CALLBACK FUNCTIONS
  ****************************************************************************************

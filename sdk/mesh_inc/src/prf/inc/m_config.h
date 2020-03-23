@@ -48,13 +48,13 @@
 /// Number of advertising transmission to perform
 #define M_ADV_NB_TX                          (5)     /* For improve the BLE  Mesh sending performance, change the number of advertising from 3 to 5. */
 /// Advertising interval - 100ms - 160 slots
-#define M_ADV_INTERVAL                       (32 * 5) // 80
+#define M_ADV_INTERVAL                       (32 * 10) // 80
 /// Network Advertising interval - 20ms - 32 slotss
 #define M_ADV_NET_INTERVAL                   (48)
 /// Advertising interval - 20ms - 32 slotss
 #define M_ADV_PROVISIONING_INTERVAL          (32)
 /// Advertising connectable interval - 500ms - 800 slots
-#define M_ADV_CON_INTERVAL                   (32 * 2)
+#define M_ADV_CON_INTERVAL                   (48)
 /// Scanning interval - 30ms - 48 slots
 #define M_ADV_SCAN_INTERVAL                  (24)
 
@@ -102,7 +102,7 @@
 /// Number of virtual addresses that can be stored
 #define M_TB_MIO_VIRT_ADDR_LIST_SIZE         (5)
 #if (BLE_MESH_PROVISIONER == 1)
-#define M_TB_KEY_MAX_NB_DEV                  (16)
+#define M_TB_KEY_MAX_NB_DEV                  (100)
 #else
 #define M_TB_KEY_MAX_NB_DEV                  (1)
 #endif
@@ -110,7 +110,7 @@
 /// Maximum number of network keys supported by Mesh stack
 #define M_TB_KEY_MAX_NB_NET                  (M_SUBNET_NB_MAX)
 /// Maximum number of Application keys supported by Mesh stack
-#define M_TB_KEY_MAX_NB_APP                 (8)
+#define M_TB_KEY_MAX_NB_APP                 (5)
 /// Total number of keys
 #define M_TB_KEY_MAX_NB                     (M_TB_KEY_MAX_NB_DEV + M_TB_KEY_MAX_NB_NET + M_TB_KEY_MAX_NB_APP)
 /// Maximum number of Bound between Application and Model supported by Mesh stack

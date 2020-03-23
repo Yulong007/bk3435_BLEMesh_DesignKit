@@ -409,6 +409,81 @@
 //=====================================================================================
 
 
+//=====================================================================================
+// UART2
+//=====================================================================================
+#define REG_APB3_UART2_CFG               (*((volatile unsigned long *)   0x00806a00))
+#define REG_APB3_UART2_FIFO_CFG    (*((volatile unsigned long *)   0x00806a04))
+#define REG_APB3_UART2_FIFO_STAT        (*((volatile unsigned long *)   0x00806a08))
+#define REG_APB3_UART2_PORT              (*((volatile unsigned long *)   0x00806a0C))
+#define REG_APB3_UART2_INT_ENABLE        (*((volatile unsigned long *)   0x00806a10))
+#define REG_APB3_UART2_INT_STAT          (*((volatile unsigned long *)   0x00806a14))
+#define REG_APB3_UART2_FLOW_CFG         (*((volatile unsigned long *)   0x00806a18))
+#define REG_APB3_UART2_WAKE_CFG         (*((volatile unsigned long *)   0x00806a1c))
+
+#define BIT_UART2_TX_ENABLE              0
+#define BIT_UART2_RX_ENABLE              1
+#define BIT_UART2_IRDA                   2
+#define BIT_UART2_LEN                    3
+#define BIT_UART2_PAR_EN                 5
+#define BIT_UART2_PAR_MODE               6
+#define BIT_UART2_STOP_LEN               7
+#define BIT_UART2_CLK_DIVID              8
+#define SET_UART2_TX_ENABLE              (0x1 << BIT_UART2_TX_ENABLE)
+#define SET_UART2_TX_DISABLE             (0x0 << BIT_UART2_TX_ENABLE)
+#define SET_UART2_RX_ENABLE              (0x1 << BIT_UART2_RX_ENABLE)
+#define SET_UART2_RX_DISABLE             (0x0 << BIT_UART2_RX_ENABLE)
+#define SET_UART2_IRDA                   (0x1 << BIT_UART2_IRDA     )
+#define SET_UART2_LEN                    (0x3 << BIT_UART2_LEN      )
+#define SET_UART2_PAR_EN                 (0x1 << BIT_UART2_PAR_EN   )
+#define SET_UART2_PAR_MODE               (0x1 << BIT_UART2_PAR_MODE )
+#define SET_UART2_STOP_LEN               (0x1 << BIT_UART2_STOP_LEN )
+#define SET_UART2_CLK_DIVID              (0x1FFF<<BIT_UART2_CLK_DIVID)
+
+#define BIT2_TX_FIFO_THRESHOLD           0
+#define BIT2_RX_FIFO_THRESHOLD           8
+#define BIT2_STOP_DETECT_TIME            16
+#define SET2_TX_FIFO_THRESHOLD           (0xFF<< BIT2_TX_FIFO_THRESHOLD)
+#define SET2_RX_FIFO_THRESHOLD           (0xFF<< BIT2_RX_FIFO_THRESHOLD)
+#define SET2_STOP_DETECT_TIME            (0x3 << BIT2_STOP_DETECT_TIME)
+
+
+#define BIT2_TX_FIFO_COUNT               0
+#define BIT2_RX_FIFO_COUNT               8
+#define SET2_TX_FIFO_COUNT               (0xFF<< BIT2_TX_FIFO_COUNT)
+#define SET2_RX_FIFO_COUNT               (0xFF<< BIT2_RX_FIFO_COUNT)
+
+#define BIT_UART2_TX_FIFO_DIN            0
+#define BIT_UART2_RX_FIFO_DOUT           8
+#define SET_UART2_TX_FIFO_DIN            (0xFF<< BIT_UART2_TX_FIFO_DIN )
+#define SET_UART2_RX_FIFO_DOUT           (0xFF<< BIT_UART2_RX_FIFO_DOUT)
+
+#define BIT2_TX_FIFO_NEED_WRITE_EN       0
+#define BIT2_RX_FIFO_NEED_READ_EN        1
+#define BIT2_RX_FIFO_OVER_FLOW_EN        2
+#define BIT_UART2_RX_PARITY_ERR_EN       3
+#define BIT_UART2_RX_STOP_ERR_EN         4
+#define BIT_UART2_TX_STOP_END_EN         5
+#define BIT_UART2_RX_STOP_END_EN         6
+#define BIT_UART2_RXD_WAKEUP_EN          7
+#define SET2_TX_FIFO_NEED_WRITE_EN       (0x1 << BIT2_TX_FIFO_NEED_WRITE_EN)
+#define SET2_RX_FIFO_NEED_READ_EN        (0x1 << BIT2_RX_FIFO_NEED_READ_EN )
+#define SET2_RX_FIFO_OVER_FLOW_EN        (0x1 << BIT2_RX_FIFO_OVER_FLOW_EN )
+#define SET_UART2_RX_PARITY_ERR_EN       (0x1 << BIT_UART2_RX_PARITY_ERR_EN)
+#define SET_UART2_RX_STOP_ERR_EN         (0x1 << BIT_UART2_RX_STOP_ERR_EN  )
+#define SET_UART2_TX_STOP_END_EN         (0x1 << BIT_UART2_TX_STOP_END_EN  )
+#define SET_UART2_RX_STOP_END_EN         (0x1 << BIT_UART2_RX_STOP_END_EN  )
+#define SET_UART2_RXD_WAKEUP_EN          (0x1 << BIT_UART2_RXD_WAKEUP_EN   )
+
+#define BIT2_TX_FIFO_NEED_WRITE_FLAG     0
+#define BIT2_RX_FIFO_NEED_READ_FLAG      1
+#define BIT2_RX_FIFO_OVER_FLOW_FLAG      2
+#define BIT_UART2_RX_PARITY_ERR_FLAG     3
+#define BIT_UART2_RX_STOP_ERR_FLAG       4
+#define BIT_UART2_TX_STOP_END_FLAG       5
+#define BIT_UART2_RX_STOP_END_FLAG       6
+#define BIT_UART2_RXD_WAKEUP_FLAG        7
+//=====================================================================================
 
 //IIC
 #define REG_APB4_I2C_CN                 (*((volatile unsigned long *)   0x00806400))

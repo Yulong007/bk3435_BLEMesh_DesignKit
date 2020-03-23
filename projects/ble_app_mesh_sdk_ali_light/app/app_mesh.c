@@ -85,6 +85,9 @@ void app_mesh_init(void)
     mesh_stack_param_init();
 
     mal_adv_report_register(app_mesh_adv_report_cb);
+#if (MESH_MEM_TB_BUF_DBG)
+    mesh_mem_dbg_init();
+#endif /* MESH_MEM_TB_BUF_DBG */
 }
 
 void app_mesh_add_mesh(void)
@@ -151,6 +154,7 @@ void app_ali_set_unprov_adv_state(uint8_t state)
 {
     uint8_t len = sizeof(state);
     uint32_t ret;
+    UNUSED(ret);
     ret = nvds_put(NVDS_TAG_MESH_PROV_STATE, len, (uint8_t*)&state);
 
 }
@@ -160,7 +164,7 @@ uint8_t app_ali_get_unprov_adv_state(void)
     uint8_t state;
     uint8_t len = sizeof(state);
     uint32_t ret;
-
+    UNUSED(ret);
     ret = nvds_get(NVDS_TAG_MESH_PROV_STATE, &len, (uint8_t*)&state);
 
     return state;
@@ -733,6 +737,12 @@ static int app_mesh_api_prov_state_ind_handler(ke_msg_id_t const msgid,
         //gpio_triger(0x11);
         //gpio_triger(0x11);
         MESH_APP_PRINT_INFO("light_prov_success\n");
+
+        //light_prov_complete();
+        /* For fix the android small phone Connection stability issues, 
+         * can't be set the stroe config timer here.
+         */
+        // m_tb_store_config(3);
 #if (!TEST_MESH_OTA)
         m_lid_t net_key_lid = MESH_INVALID_LID;
         // Get local identifier of added network key
@@ -747,6 +757,16 @@ static int app_mesh_api_prov_state_ind_handler(ke_msg_id_t const msgid,
 #endif /* !TEST_MESH_OTA */
     }
 
+    return (KE_MSG_CONSUMED);
+}
+
+static int app_mesh_api_compo_data_ind_handler(
+                    ke_msg_id_t const msgid,
+                    void const *param,
+                    ke_task_id_t const dest_id,
+                    ke_task_id_t const src_id)
+{
+    m_tb_store_config(5);
     return (KE_MSG_CONSUMED);
 }
 
@@ -773,6 +793,7 @@ const struct ke_msg_handler app_mesh_msg_handler_list[] =
     {MESH_API_ATTENTION_UPDATE_IND,            (ke_msg_func_t)app_mesh_api_prov_attention_update_ind_handler},
 
     {MESH_API_PROV_STATE_IND,                   (ke_msg_func_t)app_mesh_api_prov_state_ind_handler},
+    {MESH_API_COMPO_DATA_REQ_IND,               (ke_msg_func_t)app_mesh_api_compo_data_ind_handler},
 };
 
 const struct ke_state_handler app_mesh_table_handler =

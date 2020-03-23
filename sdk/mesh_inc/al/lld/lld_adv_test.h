@@ -159,7 +159,9 @@ bool mal_adv_report_is_register(void);
 
 void mal_adv_report_unregister(void);
 
+void lld_adv_test_enable_rand(void);
 
+void lld_adv_test_is_enable_rand(bool is_enable);
 #endif // (BLE_EMB_PRESENT && BLE_ADV_TEST_MODE)
 
 #endif // LLD_ADV_TEST_H_

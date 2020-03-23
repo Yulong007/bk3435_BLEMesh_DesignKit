@@ -38,7 +38,7 @@
  */
 
 /// Minimum BLE interval in slots
-#define MAL_BLE_INTERVAL_MIN       (32)
+#define MAL_BLE_INTERVAL_MIN       (6)
 
 /*
  * ENUMERATIONS

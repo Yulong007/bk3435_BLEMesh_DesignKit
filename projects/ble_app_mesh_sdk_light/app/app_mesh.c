@@ -627,7 +627,12 @@ static int app_mesh_api_prov_state_ind_handler(ke_msg_id_t const msgid,
         MESH_APP_PRINT_INFO("light_prov_success\n");
 
         light_prov_complete();
-        m_tb_store_config(10);
+        //light_prov_complete();
+        /* For fix the android small phone Connection stability issues, 
+         * can't be set the stroe config timer here.
+         */
+        // m_tb_store_config(3);
+
         m_tb_state_set_relay_state(1, 1);
         app_unprov_adv_timeout_set(0);
 
@@ -645,6 +650,16 @@ static int app_mesh_api_prov_state_ind_handler(ke_msg_id_t const msgid,
 #endif /* !TEST_MESH_OTA */
     }
 
+    return (KE_MSG_CONSUMED);
+}
+
+static int app_mesh_api_compo_data_ind_handler(
+                    ke_msg_id_t const msgid,
+                    void const *param,
+                    ke_task_id_t const dest_id,
+                    ke_task_id_t const src_id)
+{
+    m_tb_store_config(5);
     return (KE_MSG_CONSUMED);
 }
 
@@ -671,6 +686,7 @@ const struct ke_msg_handler app_mesh_msg_handler_list[] =
     {MESH_API_ATTENTION_UPDATE_IND,            (ke_msg_func_t)app_mesh_api_prov_attention_update_ind_handler},
 
     {MESH_API_PROV_STATE_IND,                   (ke_msg_func_t)app_mesh_api_prov_state_ind_handler},
+    {MESH_API_COMPO_DATA_REQ_IND,               (ke_msg_func_t)app_mesh_api_compo_data_ind_handler},
 };
 
 const struct ke_state_handler app_mesh_table_handler =

@@ -195,10 +195,11 @@ void gpio_init(void)
     gpio_set(0x03, 0);
     gpio_set(0x07, 0);
     gpio_set(0x11, 0);
+	gpio_set(0x12, 0);
     gpio_set(0x06, 0);
     gpio_set(0x02, 0);
 #if (POWER_ONOFF_ONLY)
-    gpio_set(0x10, 1);
+    gpio_set(0x10, 1);  ///1-> 0 ???
 #endif
 }
 

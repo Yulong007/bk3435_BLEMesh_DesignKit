@@ -226,7 +226,7 @@
 //   <i> enable CFG_GPIO_DEBUG_MSG
 //   </e>
 
-#if ( 1 )
+#if ( 0 )
 #define CFG_PRF_GMAS
 #endif
 
@@ -751,14 +751,14 @@ enum KE_EVENT_TYPE
 #if BLE_EMB_PRESENT
     KE_EVENT_BLE_CRYPT     = 4,
 #endif //BLE_EMB_PRESENT
-    KE_EVENT_KE_TIMER      = 5,
-    KE_EVENT_KE_MESSAGE     = 6,
+
+    KE_EVENT_KE_MESSAGE     = 5,  ///0302
     
 
 #if defined(CFG_BLE_MESH)
-    KE_EVENT_BLE_MESH_DJOB = 7,
+    KE_EVENT_BLE_MESH_DJOB = 6,
 #endif // defined(CFG_BLE_MESH)
-
+    KE_EVENT_KE_TIMER      = 7,
 #if (AHI_TL_SUPPORT)
     KE_EVENT_AHI_TX_DONE  = 8,
 #endif //(AHI_TL_SUPPORT)

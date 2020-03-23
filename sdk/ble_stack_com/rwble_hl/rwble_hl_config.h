@@ -162,7 +162,7 @@
 #if (BLE_CENTRAL || BLE_PERIPHERAL)
 /// some heap must be reserved for attribute database
 #if (BLE_ATTS || BLE_ATTC)
-#define BLEHL_HEAP_DB_SIZE                 (1024 * 20)//(1024)
+#define BLEHL_HEAP_DB_SIZE                 (1024 * 20 - 1280)//(1024)
 #else
 #define BLEHL_HEAP_DB_SIZE                 (0)
 #endif /* (BLE_ATTS || BLE_ATTC) */

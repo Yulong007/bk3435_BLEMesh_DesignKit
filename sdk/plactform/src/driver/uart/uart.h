@@ -71,7 +71,7 @@ void dbg_initial(void);
 void uart_clear_rxfifo(void);
 
 uint8_t Uart_Read_Byte(void);
-uint8_t read_uart_ringbuf_data(uint8_t *buf, uint16_t len);
+uint16_t read_uart_ringbuf_data(uint8_t *buf, uint16_t len);
 uint16_t Read_Uart_Buf(uint8_t *buf, uint16_t len);
 
 

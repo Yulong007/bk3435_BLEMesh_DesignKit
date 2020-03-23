@@ -52,11 +52,11 @@ enum m_tb_store_nvds_tag
     NVDS_LEN_MESH_UNICAST_ADDR          = 2,
 
     /// Default TTL
-    NVDS_TAG_MESH_DEFAULT_TTL           = NVDS_TAG_MESH_UNICAST_ADDR + 1,//1
+    NVDS_TAG_MESH_DEFAULT_TTL           = NVDS_TAG_MESH_UNICAST_ADDR + 1,////1
     NVDS_LEN_MESH_DEFAULT_TTL           = 1,
 
     /// Secure Network Beacon
-    NVDS_TAG_MESH_SECURE_BCN            = NVDS_TAG_MESH_DEFAULT_TTL + 1,//2
+    NVDS_TAG_MESH_SECURE_BCN            = NVDS_TAG_MESH_DEFAULT_TTL + 1,///2
     NVDS_LEN_MESH_SECURE_BCN            = 1,
 
     /// Network Transmit
@@ -75,14 +75,19 @@ enum m_tb_store_nvds_tag
     NVDS_TAG_MESH_FRIEND                = NVDS_TAG_MESH_GATT_PROXY + 1,//6
     NVDS_LEN_MESH_FRIEND                = 1,
 
+   
+    NVDS_TAG_MESH_CTLSET_VALUE	= NVDS_TAG_MESH_FRIEND+1,   ///add 0305
+    NVDS_LEN_MESH_CTLSET_VALUE	= 1,
+    
+
 #if (BLE_MESH_PROVISIONER)
     /// Device Key
-    NVDS_TAG_MESH_DEV_KEY_FIRST         = NVDS_TAG_MESH_FRIEND + 1, //7
+    NVDS_TAG_MESH_DEV_KEY_FIRST         = NVDS_TAG_MESH_CTLSET_VALUE + 1, //7   ///add change 0305
     NVDS_TAG_MESH_DEV_KEY_LAST          = NVDS_TAG_MESH_DEV_KEY_FIRST + M_TB_KEY_MAX_NB_DEV - 1,
     NVDS_LEN_MESH_DEV_KEY               = 32,
 #else /* !BLE_MESH_PROVISIONER */
     /// Device Key
-    NVDS_TAG_MESH_DEV_KEY               = NVDS_TAG_MESH_FRIEND + 1, //7
+    NVDS_TAG_MESH_DEV_KEY               = NVDS_TAG_MESH_CTLSET_VALUE + 1, //7
     NVDS_LEN_MESH_DEV_KEY               = 16,
 #endif /* BLE_MESH_PROVISIONER */
 
