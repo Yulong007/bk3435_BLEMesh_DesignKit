@@ -738,11 +738,6 @@ static int app_mesh_api_prov_state_ind_handler(ke_msg_id_t const msgid,
         //gpio_triger(0x11);
         MESH_APP_PRINT_INFO("light_prov_success\n");
 
-        //light_prov_complete();
-        /* For fix the android small phone Connection stability issues, 
-         * can't be set the stroe config timer here.
-         */
-        // m_tb_store_config(3);
 #if (!TEST_MESH_OTA)
         m_lid_t net_key_lid = MESH_INVALID_LID;
         // Get local identifier of added network key

@@ -635,11 +635,7 @@ static int app_mesh_api_prov_state_ind_handler(ke_msg_id_t const msgid,
         //gpio_triger(0x11);
         MESH_APP_PRINT_INFO("light_prov_success\n");
 
-        light_prov_complete();
-        /* For fix the android small phone Connection stability issues, 
-         * can't be set the stroe config timer here.
-         */
-        // m_tb_store_config(3);
+        m_tb_store_config(10);
 
         m_tb_state_set_relay_state(1, 1);
         app_unprov_adv_timeout_set(0);
