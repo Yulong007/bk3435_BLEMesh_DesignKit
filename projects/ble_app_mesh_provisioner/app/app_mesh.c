@@ -576,7 +576,7 @@ static int app_mesh_msg_model_app_bind_handler(ke_msg_id_t const msgid,
         {
             config_num = 5;
             light_prov_complete();
-            //m_tb_store_config(5);
+            m_tb_store_config(10);
             m_tb_state_set_relay_state(1, 1);
             app_unprov_adv_timeout_set(0);
         }

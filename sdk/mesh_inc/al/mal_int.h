@@ -320,6 +320,11 @@ void mal_con_cleanup(uint8_t conidx, uint8_t reason);
 void mal_task_init(bool reset, struct prf_task_env *p_env, uint16_t app_task,
                    uint8_t sec_lvl);
 
+
+uint16_t mal_set_scanrsp_data(char const *scanrsp_data, uint8_t len);
+
+uint8_t *mal_get_scanrsp_data(uint8_t *scanrsp_data_len);
+
 /// @} MAL
 
 #endif /* MAL_INT_ */

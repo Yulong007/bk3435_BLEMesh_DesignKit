@@ -47,7 +47,7 @@ static void mem_check_cmd(char *buf, int len, int argc, char **argv);
 static void bk_reg_cmd(char *buf, int len, int argc, char **argv);
 static void pattern(char *buf, int len, int argc, char **argv);
 
-
+extern void  uart_ringbuf_clean(void);
 
 static const struct cli_command built_ins[] =
 {
@@ -690,7 +690,7 @@ static void hexstr2bin(const char *macstr, uint8_t *mac, int len)
     }
 }
 
-
+extern void lld_util_set_bd_address(struct bd_addr *bd_addr, uint8_t type);
 
 static void mac_cmd(char *buf, int len, int argc, char **argv)
 {
@@ -711,7 +711,7 @@ static void mac_cmd(char *buf, int len, int argc, char **argv)
     {
         hexstr2bin(argv[1], mac, 6);
 
-        lld_util_set_bd_address(&mac, 1);
+        lld_util_set_bd_address((struct bd_addr *)mac, 1);
 
         aos_cli_printf("Set ble address: %02x-%02x-%02x-%02x-%02x-%02x\r\n",
                        mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
