@@ -15,6 +15,14 @@ typedef enum{
 #define GMA_PAYLOAD_HEAD    4
 #define GMA_VOICE_HEAD      5
 
+#define	Belon_MAC_7149_720F 0
+#define	GMM_MAC_D5D8		0
+#define	QCY_MAC_21D0		0
+#define	ZND_MAC_720F		0
+#define	GMM_MAC2		    0
+#define	GMM_MAC3		    0
+#define	BeiCi_Pen1		    0
+
 // GMA result
 #define SUCCESS     0
 #define FAIL        1
@@ -27,6 +35,12 @@ typedef enum{
 #define  VOICE_SEND_MAX     50
 #define  MIC_NUM            1
 #define  REF_NUM            0
+
+#define		StartGmaOtaAdv_Cnt		    5
+#define		Flag_InGmaState			    (0x01<<0)
+#define		InGmaOtaCnt					60
+
+typedef void (*gma_callback_t)(void);
 
 typedef enum
 {
@@ -187,8 +201,14 @@ typedef struct
 #define GMA_WRITEWITHNORESP_HANDLE          0x1009
 #define GMA_NOTIFY_HANDLE                   0x100B
 
-#define SEC_IMAGE_OAD_HEADER_APP_FADDR     (0x13010)
+#define SEC_IMAGE_OAD_HEADER_APP_FADDR     SEC_IMAGE_APP_OAD_HEADER_FADDR
+
 #define SEC_BACKUP_OAD_HEADER_FADDR		   (0x1D800) //118kb * 1024
+
+#define SEC_IMAGE_BACKUP_OAD_HEADER_FADDR   (0x52000)
+#define SEC_IMAGE_BACKUP_OAD_IMAGE_FADDR    (0x52010)
+#define SEC_IMAGE_BACKUP_ALLOC_START_FADDR  (0x52000) //(328KB)
+#define SEC_IMAGE_BACKUP_ALLOC_END_FADDR    (0x7E000) //(504KB)
 
 void gma_init(void);
 void gma_flag_clear(void);
@@ -199,7 +219,19 @@ void gma_send_dev_error(uint8_t msg_id, uint8_t *data, uint8_t len);
 #if GMA_OTA
 void gma_ota_write_flash(void);
 uint8_t gma_ota_is_ongoing(void);
+void gma_ota_clear_ongoingFlag(void);
+
 #endif
+
+void gma_AliInit(void);
+void ali_digest_AuthData(uint8_t *digest,ali_para_s t_ali_para);//	generate auth data
+void User_GetAuthData(uint8_t* authdata);
+void Start_GmaOTA_Adv(void);
+void Stop_GmaOTA_Adv(void);
+
+gma_callback_t gma_get_disconn_handler(void);
+
+void CloseMeshAdv_OpenGmaOtaAdv(void);
 #endif
 
 #endif /* __GMA_H__ */

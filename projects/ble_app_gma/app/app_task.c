@@ -50,6 +50,8 @@
 #include "led.h"
 
 #include "app_light_ali_server.h"
+#include "gma.h"
+#include "user_config.h"
 extern void light_ali_quick_onoff_timer(void);
 
 #if GMA_SUPPORT
@@ -502,6 +504,14 @@ static int gapc_disconnect_ind_handler(ke_msg_id_t const msgid,
     }
 #endif
 
+#if GMA_SUPPORT
+		gma_callback_t cb;
+		if ((cb = gma_get_disconn_handler()) != NULL)
+		{
+			cb();
+		}
+#endif
+	
     // Go to the ready state
     ke_state_set(TASK_APP, APPM_READY);
 

@@ -65,14 +65,16 @@ void oads_erase_backup_sec(void)
         MESH_APP_PRINT_INFO("APP_PART_UID bim_erase_backup_sec \r\n");
         uint32_t addr = SEC_IMAGE_BACKUP_ALLOC_START_FADDR ;
 
-        MESH_APP_PRINT_INFO("START addr = 0x", addr, 16);
+        MESH_APP_PRINT_INFO("START addr = 0x%x", addr);
 
+		
         for (; addr < SEC_IMAGE_BACKUP_ALLOC_END_FADDR; addr+= FLASH_SEC_SIZE )
         {
+			wdt_feed(0x7FFF);
             flash_erase(FLASH_MAIN_BASE_ADDR, addr, FLASH_SEC_SIZE, NULL);
         }
 
-        MESH_APP_PRINT_INFO("END addr = 0x", addr, 16);
+        MESH_APP_PRINT_INFO("END addr = 0x%x", addr);
 
     }
 
@@ -100,7 +102,7 @@ uint32_t oad_get_psec_backup_header(void)
 
     return 0;
 }
-
+ 
 uint32_t calc_backup_sec_crc(void)
 {
     MESH_APP_PRINT_INFO("%s\r\n", __func__);

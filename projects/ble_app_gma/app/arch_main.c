@@ -293,12 +293,6 @@ void rw_app_enter(void)
         GLOBAL_INT_DISABLE();
 
         oad_updating_user_section_pro();
-        loop++;
-        if (loop % 850000 == 0)
-        {
-            MESH_APP_PRINT_INFO("rwip_schedule %d\n", loop1++);
-
-        }
 
 #if SYSTEM_SLEEP
         // Check if the processor clock can be gated
@@ -320,8 +314,15 @@ void rw_app_enter(void)
             cpu_idle_sleep();
         }
 #endif
+		wdt_feed(0x7FFF);
         Stack_Integrity_Check();
         GLOBAL_INT_RESTORE();
+        loop++;
+        if (loop % 850000 == 0)
+        {
+        	loop1++;
+            //MESH_APP_PRINT_INFO("rwip_schedule %d\n", loop1++);
+        }
     }
 }
 

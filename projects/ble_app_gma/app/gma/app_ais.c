@@ -60,8 +60,6 @@ static int app_gma_msg_dflt_handler(ke_msg_id_t const msgid,
                                      ke_task_id_t const dest_id,
                                      ke_task_id_t const src_id)
 {
-	UART_PRINTF("%s\r\n", __func__);
-
 	// Drop the message
 	return (KE_MSG_CONSUMED);
 }

@@ -427,6 +427,8 @@ void m_prov_bearer_gatt_stop(void);
  ****************************************************************************************
  */
 uint16_t m_prov_bearer_gatt_send(mesh_tb_buf_t *p_buf);
+
+void m_lay_proxy_bearer_stop(void);
 #endif // (BLE_MESH_GATT_PROV)
 
 /*

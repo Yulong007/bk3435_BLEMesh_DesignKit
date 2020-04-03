@@ -234,6 +234,8 @@ void hci_ahi_event_send(uint8_t (*callback) (void*, uint8_t), void* dummy);
 
 bool appm_ble_is_connected(void);
 
+bool user_data_read_ali_secret_froward_key(uint8_t *l_key);
+
 /// @} APP
 
 #endif //(BLE_APP_PRESENT)

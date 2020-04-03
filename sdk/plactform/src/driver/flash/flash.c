@@ -247,8 +247,8 @@ void flash_init(void)
 
     flash_set_dual_mode();
        
-    set_flash_clk(0x1);
-    
+    // Set the flash clock mode to XTAL mode and 16MHz
+    set_flash_clk(0x8);
 }
 
 

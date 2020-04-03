@@ -29,8 +29,6 @@
  ****************************************************************************************
  */
 #include <string.h>
-#include "mesh_general_api.h" 
-#include "lld_adv_test.h"
 #include "app_mesh.h"                // Bracese Application Module Definitions
 #include "app_mm_msg.h"                // Bracese Application Module Definitions
 #include "m_api.h"
@@ -59,6 +57,13 @@
 #include "m_fnd_BLOB_Transfer.h"
 #include "gpio.h"
 
+
+#include "lld_adv_test.h"
+#include "user_config.h"
+#include "mm_vendors.h"
+#include "lld_adv_test.h"
+#include "mesh_general_api.h"
+#include "gma.h"
 /*
  * LOCATION FUN DEFINES
  ****************************************************************************************
@@ -73,6 +78,8 @@ static void app_mesh_adv_report_cb(const struct adv_report* p_report);
 /// braces Application Module Environment Structure
 struct app_mesh_env_tag app_mesh_env;
 
+extern uint8_t flag_gma;
+extern uint8_t inGmaOtaTime;
 /*
  * GLOBAL FUNCTION DEFINITIONS
  ****************************************************************************************
@@ -190,7 +197,6 @@ void app_mesh_add_models_server(void)
 {
     MESH_APP_PRINT_INFO("app_mesh_add_mesh_models_server\r\n");
     app_ai_lights_models_init(0);
-
 }
 
 extern void m_link_open_ack_dis(void);
@@ -335,7 +341,7 @@ static int app_mesh_msg_model_app_bind_handler(ke_msg_id_t const msgid,
         {
             config_num = 5;
             light_prov_complete();
-            m_tb_store_config(5);
+            m_tb_store_config(10);
             m_tb_state_set_relay_state(1, 1);
             app_unprov_adv_timeout_set(0);
         }
@@ -361,13 +367,13 @@ static int app_mesh_msg_node_reset_handler(ke_msg_id_t const msgid,
     light_unBind_complete();
     quick_onoff_count = 0;
     light_state_nv_store(FLASH_LIGHT_PARAM_TYPE_POWER_ON_COUNT);
-    //wdt_reset(0x8fff);
-
+    wdt_reset(0x3ff);
+	/*
     //reboot from 0x00000000
     void (*pReset)(void);
     pReset = (void * )(0x0);
     pReset();
-
+	*/
     return (KE_MSG_CONSUMED);
 }
 
@@ -407,6 +413,17 @@ static int app_mesh_msg_key_ind_handler(ke_msg_id_t const msgid,
             user_models_subs_group_addr(g_vdr_lid, 0xc000);
             user_models_publish_set(g_vdr_lid, 0xF000);
 #endif /* #if 0 */
+#if GMA_SUPPORT
+			if(quick_onoff_count == StartGmaOtaAdv_Cnt){
+				if( m_tb_state_get_prov_state() == M_TB_STATE_PROV_STATE_PROV )
+				{
+				    MESH_APP_PRINT_WARN("**** Start Gma OTA mode.****\n");
+					flag_gma |= Flag_InGmaState;
+					inGmaOtaTime = InGmaOtaCnt;
+					CloseMeshAdv_OpenGmaOtaAdv();
+				}
+			}
+#endif
 #endif
         } break;
 
@@ -455,8 +472,12 @@ static int app_mesh_api_cmp_handler(ke_msg_id_t const msgid,
         case M_API_DISABLE: //0x1
         {
             // Check that should store the key info to nvs or not.
-            m_tb_store_nvs_after_stop_scan();
-            app_mesh_enable();
+            MESH_APP_PRINT_INFO("is ongoing %d,flag_gma=%d\n",!gma_ota_is_ongoing(), ( (flag_gma & Flag_InGmaState) == 0));
+            if( (!gma_ota_is_ongoing()) && ( (flag_gma & Flag_InGmaState) == 0)) 
+			{
+            	m_tb_store_nvs_after_stop_scan();
+            	app_mesh_enable();
+            }
             MESH_APP_PRINT_INFO("M_API_DISABLE param->status %x\n", param->status);
         }
 
@@ -648,7 +669,8 @@ static void app_get_prov_param(m_api_prov_param_cfm_t* cfm, uint8_t adv_type)
         dev_uuid.cid = 0x01A8; //!< taobao
         dev_uuid.pid.adv_ver = 1;
         dev_uuid.pid.sec = 1;
-        dev_uuid.pid.ota = 0;
+        //dev_uuid.pid.ota = 0;
+        dev_uuid.pid.ota = 1;
         dev_uuid.pid.bt_ver = 1;
         dev_uuid.product_id = product_id;// PRODUCT ID
 
@@ -662,6 +684,9 @@ static void app_get_prov_param(m_api_prov_param_cfm_t* cfm, uint8_t adv_type)
         }
         memset(dev_uuid.rfu, 0, sizeof(dev_uuid.rfu));
         memcpy(cfm->dev_uuid, (uint8_t *)&dev_uuid, 16);
+		
+		cfm->uri_hash = 0x0;
+		cfm->oob_info = 0x0000;
 
     }
 #endif //ALI_MESH 
@@ -761,6 +786,13 @@ static int app_mesh_api_prov_state_ind_handler(ke_msg_id_t const msgid,
     }
 
     return (KE_MSG_CONSUMED);
+}
+
+bool user_data_read_ali_secret_froward_key(uint8_t *l_key)
+{
+    flash_read_data(l_key, FLASH_ALI_DATA_ADDRESS + FLASH_ALI_SECRET_ADDR_OFFSET, FLASH_ALI_SECRET_LEN);
+    MESH_APP_PRINT_INFO("%s key = %s\n", __func__, mesh_buffer_to_hex(l_key, FLASH_ALI_SECRET_LEN));
+    return true;
 }
 
 /// Default State handlers definition

@@ -20,7 +20,7 @@
 #include "prf.h"
 #include "ke_mem.h"
 #include "uart.h"
-
+#include "mesh_log.h"
 // GMA Database Description - Used to add attributes into the database
 const struct attm_desc gmas_att_db[GMAS_IDX_NB] =
 {

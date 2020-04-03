@@ -10,7 +10,21 @@
 #include "ke_timer.h"
 #include "co_bt.h"
 
+#include "mesh_log.h"
+
+#include "ali_config.h"
+#include "app.h"
+#include "mesh_general_api.h"
+#include "m_prov_int.h"
+
 #if GMA_SUPPORT
+
+#define		Flag_InGmaState				(0x01<<0)
+#define		Flag_Flash_Start			(0x01<<2)
+#define		Flag_unBind_Restart			(0x01<<3)
+#define		GmaOta_FlashTimes		    (2)
+#define STREAM_TO_UINT16(u16, p) {u16 = ((UINT16)(*(p)) + (((UINT16)(*((p) + 1))) << 8)); (p) += 2;}
+img_hdr_t img_hdr_new;
 
 #if GMA_AES
 AES_CTX ali_aes_ctx;
@@ -18,11 +32,107 @@ uint8_t iv_temp[16] = "123aqwed#*$!(4ju";
 #endif
 
 gma_para_proc_s gma_para_proc;
-#if 1
+uint8_t inGmaOtaTime;
+
+gma_callback_t gma_discon_cb = NULL;
+uint8_t flag_global, flash_times_cnt, flag_gma;
+
+#if GMM_MAC2
+//7780,2e23120486709b6a2eafa41d87fe0bcc,f8a76351d5d8
+ali_para_s ali_para = { 
+	{0x32,0x1b,0x28,0x63,0xa7,0xf8},
+	6541,
+	{0xa1,0x8a,0x9f,0xd8,0x46,0x3f,0xbd,0x16,0x07,0x03,0x88,0xef,0x61,0xc4,0x8d,0x1c},
+};
+
+uint8_t adv_gma_data[25] = {
+    /* Flags Field */ 0x02,0x01,0x06,                 /*GAP_LE_BR_EDR_NOT_SUPPORTED*/
+    /* Service UUID */ 0x03,0x02,0xB3,0xFE,           //GMA service UUID: 0xFEB3
+    /* Manufacturer data */ 0x11,0xFF,0xA8,0x01,0xB5,0x09,  0x8d,0x19,0x00,0x00,  0x32,0x1b,0x28,0x63,0xa7,0xf8, 0x12,0x00  //CID:0x01A8, VID:0xB5, FMSK:0x09, PID:2588, MAC:0xf8a76369da06, EXT:0x0012
+};
+#elif ZND_MAC_720F
+//7149,fdda9fa7c036dfbd123143f903ef2487,f8a76344720f
+//1bed
+ali_para_s ali_para = { 
+	{0x0f,0x72,0x44,0x63,0xa7,0xf8},
+	7149,
+	{0xfd,0xda,0x9f,0xa7,0xc0,0x36,0xdf,0xbd,0x12,0x31,0x43,0xf9,0x03,0xef,0x24,0x87},
+};
+
+uint8_t adv_gma_data[25] = {
+    /* Flags Field */ 0x02,0x01,0x06,                 /*GAP_LE_BR_EDR_NOT_SUPPORTED*/
+    /* Service UUID */ 0x03,0x02,0xB3,0xFE,           //GMA service UUID: 0xFEB3
+    /* Manufacturer data */ 0x11,0xFF,0xA8,0x01,0xB5,0x09,  0xed,0x1b,0x00,0x00,  0x0f,0x72,0x44,0x63,0xa7,0xf8, 0x12,0x00  //CID:0x01A8, VID:0xB5, FMSK:0x09, PID:2588, MAC:0xf8a76369da06, EXT:0x0012
+};
+
+#elif Belon_MAC_7149_720F
+//7149,f8a76344720f,fdda9fa7c036dfbd123143f903ef2487
+//00001bed,f8a76344720f,fdda9fa7c036dfbd123143f903ef2487
+ali_para_s ali_para = { 
+	{0x0f,0x72,0x44,0x63,0xa7,0xf8},
+	7149,
+	{0xfd,0xda,0x9f,0xa7,0xc0,0x36,0xdf,0xbd,0x12,0x31,0x43,0xf9,0x03,0xef,0x24,0x87},	//Device Secret
+};
+
+uint8_t adv_gma_data[25] = {
+    /* Flags Field */ 0x02,0x01,0x06,                 /*GAP_LE_BR_EDR_NOT_SUPPORTED*/
+    /* Service UUID */ 0x03,0x02,0xB3,0xFE,           //GMA service UUID: 0xFEB3
+    /* Manufacturer data */ 0x11,0xFF,0xA8,0x01,0xB5,0x09,  0xed,0x1b,  0x00,0x00, 0x0f,0x72,0x44,0x63,0xa7,0xf8,   0x12,0x00  //CID:0x01A8, VID:0xB5, FMSK:0x09, PID:2588, MAC:0xf8a76369da06, EXT:0x0012
+};
+
+#elif GMM_MAC_D5D8
+//7780,f8a76351d5d8,2e23120486709b6a2eafa41d87fe0bcc
+//000016e4,f8a76351d5d8,2e23120486709b6a2eafa41d87fe0bcc
+ali_para_s ali_para = { 
+	{0xd8,0xd5,0x51,0x63,0xa7,0xf8},
+	7780,
+	{0x2e,0x23,0x12,0x04,0x86,0x70,0x9b,0x6a,0x2e,0xaf,0xa4,0x1d,0x87,0xfe,0x0b,0xcc},	//Device Secret
+};
+
+uint8_t adv_gma_data[25] = {
+    /* Flags Field */ 0x02,0x01,0x06,                 /*GAP_LE_BR_EDR_NOT_SUPPORTED*/
+    /* Service UUID */ 0x03,0x02,0xB3,0xFE,           //GMA service UUID: 0xFEB3
+    /* Manufacturer data */ 0x11,0xFF,0xA8,0x01,0xB5,0x09,  0x64,0x1E,  0x00,0x00, 0xd8,0xd5,0x51,0x63,0xa7,0xf8,   0x12,0x00  //CID:0x01A8, VID:0xB5, FMSK:0x09, PID:2588, MAC:0xf8a76369da06, EXT:0x0012
+};
+
+#elif	QCY_MAC_21D0
+
+//product info: 00002881,f8a7637d21d0,9583d4ff1138f61af441414aa333c717
+//SHA256(00002881,f8a7637d21d0,9583d4ff1138f61af441414aa333c717)
+//=67d3417b6c35e3b9 41f82bbab1e5f07d  cfb31e98fa66b26c89f19870401f0672 (取前16个字节)
+ali_para_s ali_para = {
+	{0xd0,0x21,0x7d,0x63,0xa7,0xf8},
+	10369,
+	{0x95,0x83,0xd4,0xff,0x11,0x38,0xf6,0x1a,0xf4,0x41,0x41,0x4a,0xa3,0x33,0xc7,0x17},	//Device Secret
+};
+
+uint8_t adv_gma_data[25] = {
+    /* Flags Field */ 0x02,0x01,0x06,                 /*GAP_LE_BR_EDR_NOT_SUPPORTED*/
+    /* Service UUID */ 0x03,0x02,0xB3,0xFE,           //GMA service UUID: 0xFEB3
+    /* Manufacturer data */ 0x11,0xFF,0xA8,0x01,0xB5,0x09,  0x81,0x28,  0x00,0x00, 0xd0,0x21,0x7d,0x63,0xa7,0xf8,   0x12,0x00  //CID:0x01A8, VID:0xB5, FMSK:0x09, PID:2588, MAC:0xf8a76369da06, EXT:0x0012
+};
+
+#elif GMM_MAC3
+
+ali_para_s ali_para = { 
+	{0xbf,0xb4,0x7d,0x63,0xa7,0xf8},
+	7148,
+	{0xf1,0x30,0x99,0x49,0xa4,0x3b,0xcc,0x0e,0xc6,0x8e,0xda,0x53,0x16,0xe4,0x6b,0x32},
+};
+
+uint8_t adv_gma_data[25] = {
+    /* Flags Field */ 0x02,0x01,0x06,                 /*GAP_LE_BR_EDR_NOT_SUPPORTED*/
+    /* Service UUID */ 0x03,0x02,0xB3,0xFE,           //GMA service UUID: 0xFEB3
+    /* Manufacturer data */ 0x11,0xFF,0xA8,0x01,0xB5,0x09,  0xec,0x1b,0x00,0x00,  0xbf,0xb4,0x7d,0x63,0xa7,0xf8, 0x12,0x00  //CID:0x01A8, VID:0xB5, FMSK:0x09, PID:2588, MAC:0xf8a76369da06, EXT:0x0012
+};
+
+
+#elif BeiCi_Pen1
 ali_para_s ali_para = { 
 	{0x06,0xda,0x69,0x63,0xa7,0xf8},
 	9608,
-	{0xa7,0x17,0xdc,0x78,0xf2,0x08,0x61,0xa3,0xad,0x79,0x36,0x0d,0xb2,0x6f,0x12,0xae},
+	//{0xa7,0x17,0xdc,0x78,0xf2,0x08,0x61,0xa3,0xad,0x79,0x36,0x0d,0xb2,0x6f,0x12,0xae},
+	{0xa7,0x17,0xdc,0x78,0xf2,0x08,0x61,0xa3,0xad,0x79,0x36,0x0d,0xb2,0x6f,0x12,0xaa},
 };
 
 uint8_t adv_gma_data[25] = {
@@ -68,6 +178,12 @@ typedef struct
 
 static xm_ota_data_s gma_ota_data;
 uint8_t gma_ota_is_ongoing(void);
+static void gma_register_disconnect_cb(gma_callback_t cb);
+static void gma_ble_disconnect_cb(void);
+static void CloseMeshAdv_Proc(void);
+static void CloseGmaOtaAdv_OpenMeshAdv(void);
+static void CloseGmaOtaAdv_ClearFlag(void);
+
 #endif
 /**********************************GMA OTA END*********************************/
 #if GMA_AES
@@ -121,6 +237,49 @@ void ali_digest_cal(uint8_t *digest, uint8_t *random, ali_para_s t_ali_para)
         GMA_DEBUG("%02X ", (uint8_t)digest[i]);
     GMA_DEBUG("\r\n");
 }
+
+void ali_digest_AuthData(uint8_t *digest,ali_para_s t_ali_para)
+{
+    char spc[50];
+    char s_addr[13];
+    char s_key[33];
+    int i = 0;
+    SHA256_CTX sha256_context;
+
+    memset(spc, 0, sizeof(spc));
+	
+    memset(s_addr, 0, sizeof(s_addr));
+    for(i = 0; i < 6; i++)
+    {
+        sprintf(s_addr, "%s%02x", s_addr, t_ali_para.mac[5-i]);
+    }
+
+    memset(s_key, 0, sizeof(s_key));
+    for(i = 0; i < 16; i++)
+    {
+        sprintf(s_key, "%s%02x", s_key, t_ali_para.secret[i]);
+    }
+
+    sprintf(spc, "%08x,%s,%s", t_ali_para.pid , s_addr, s_key);
+
+	GMA_DEBUG(" --+--data=");
+
+	GMA_DEBUG("%s",spc);
+	
+	GMA_DEBUG("\n");
+    ali_sha256_init(&sha256_context);
+    ali_sha256_update(&sha256_context, (unsigned char*)spc, strlen(spc));
+    ali_sha256_final(&sha256_context, digest);
+    
+    GMA_DEBUG(">>>><<<<<authdata: ");
+    for(i = 0; i < 16; i++)
+        GMA_DEBUG("%02X ", (uint8_t)digest[i]);
+    GMA_DEBUG("\r\n");
+
+	
+}
+
+
 #endif
 
 void gma_init(void)
@@ -135,6 +294,74 @@ void gma_init(void)
     
     extern struct bd_addr co_default_bdaddr;
     memcpy(co_default_bdaddr.addr, ali_para.mac, 6);
+
+	flash_read(FLASH_MAIN_BASE_ADDR, SEC_IMAGE_OAD_HEADER_APP_FADDR, sizeof(img_hdr_t), (uint8_t *)&img_hdr_new, NULL);
+
+	gma_register_disconnect_cb(gma_ble_disconnect_cb);
+}
+
+
+void gma_AliInit(void)
+{
+	uint8_t dev_mac[6];
+	uint32_t	dev_pid;
+	uint8_t dev_deviceKey[16];
+	uint8_t auth_data[32];
+	uint8_t i;
+    memset((void*)&gma_para_proc, 0, sizeof(gma_para_proc_s));
+
+	
+	if(user_data_contains_ali_data())
+	{
+		user_data_read_ali_mac(ali_para.mac,1);
+		ali_para.pid = user_data_read_ali_product_id();
+		user_data_read_ali_secret_froward_key(ali_para.secret);
+	}
+
+	GMA_DEBUG("\n**--**mac=");
+	for(i=0;i<6;i++)
+	{
+		GMA_DEBUG("%2x",ali_para.mac[i]);
+	}
+
+	GMA_DEBUG("\n");
+
+	GMA_DEBUG("\n**--**pid=%d\n",ali_para.pid);
+
+	GMA_DEBUG("--*--secret key=");
+	for(i=0;i<16;i++)
+	{
+		GMA_DEBUG("%2x",ali_para.secret[i]);
+	}
+	GMA_DEBUG("\n");
+
+
+
+
+    memcpy(gma_para_proc.ble_mac, ali_para.mac , 6);
+    memcpy(gma_para_proc.dev_random, "1234567890123456", 16);
+	
+    gma_para_proc.init_flag = 1;
+    
+    memcpy(&adv_gma_data[13], (uint8_t *)&ali_para.pid, 4);
+    memcpy(&adv_gma_data[17], ali_para.mac, 6);
+    
+    extern struct bd_addr co_default_bdaddr;
+    memcpy(co_default_bdaddr.addr, ali_para.mac, 6);
+
+	gma_register_disconnect_cb(gma_ble_disconnect_cb);
+	flash_read(FLASH_MAIN_BASE_ADDR, SEC_IMAGE_OAD_HEADER_APP_FADDR, sizeof(img_hdr_t), (uint8_t *)&img_hdr_new, NULL);
+}
+
+
+#define		AuthData_Len	16
+void User_GetAuthData(uint8_t* authdata){
+	uint8_t auth_data_temp[32];
+	uint8_t i;
+	ali_digest_AuthData(auth_data_temp,ali_para);
+	for(i=0;i<AuthData_Len;i++){
+		authdata[i] = auth_data_temp[AuthData_Len - 1-i];
+	}
 }
 
 void gma_flag_clear(void)
@@ -1071,13 +1298,15 @@ uint8_t gma_ota_calc_crc(void)
 {
 	uint32_t i;
 	uint8_t data[256];
+	uint8_t data1[5];
 	uint32_t read_addr;
 	uint16_t calccrc = 0xFFFF;
     uint16_t savecrc = 0;
     uint32_t data_len = 0;
     uint16_t len = 0;
+	img_hdr_t ImgHdr;
 
-    read_addr = SEC_BACKUP_OAD_HEADER_FADDR;
+    read_addr = SEC_IMAGE_BACKUP_OAD_HEADER_FADDR;
     data_len = gma_ota_data.bin_len;
     savecrc = gma_ota_data.bin_crc;
 
@@ -1092,7 +1321,7 @@ uint8_t gma_ota_calc_crc(void)
             len = data_len - i;
         }
             
-        //flash_read(FLASH_SPACE_TYPE_MAIN, read_addr/4, len, data);
+        flash_read(FLASH_MAIN_BASE_ADDR, read_addr, len, data,NULL);
         calccrc = genCrc16CCITT(calccrc, data, len);
         read_addr += len;
         i += len;
@@ -1100,14 +1329,46 @@ uint8_t gma_ota_calc_crc(void)
 	calccrc = calccrc1;
 	GMA_PRINTF("CRC : calc_crc = %x, save_crc = %x \r\n", calccrc, savecrc);
     if(calccrc == savecrc)
+    {
+        img_hdr_new.crc = calccrc;
+        img_hdr_new.crc_status = CRC_CHECK_OK;
+
+		MESH_APP_PRINT_INFO("--crc check ok---before write rom_ver=0x%x,ver=%x\n",img_hdr_new.rom_ver,img_hdr_new.ver);
+		
+        //flash_write(0, SEC_IMAGE_BACKUP_OAD_HEADER_FADDR, sizeof(img_hdr_t), (uint8_t *)&img_hdr_new, NULL);
+
+		flash_read(FLASH_MAIN_BASE_ADDR, SEC_IMAGE_BACKUP_OAD_HEADER_FADDR, sizeof(img_hdr_t), (uint8_t *)&ImgHdr,NULL);
+		data1[0]= 0;
+		data1[1] = (ImgHdr.ver & 0xff);			  //firmware version
+		data1[2] = ((ImgHdr.ver >> 8) & 0xff);	  //firmware version
+		data1[3] = (ImgHdr.rom_ver & 0xff);		  //firmware version
+		data1[4] = ((ImgHdr.rom_ver >> 8) & 0xff); //firmware version
+		// Copy the version info to the new version structuer.
+		
+		//memcpy(&img_hdr_new, &ImgHdr, sizeof(img_hdr_t));
+		GMA_DEBUG("read_ota_fw_ver %d: ", sizeof(data1));
+		for(i = 0; i < sizeof(data1); i++)
+			GMA_DEBUG("%02x ", data1[i]);
+		GMA_DEBUG("\r\n");
+		
+		MESH_APP_PRINT_INFO("ImgHdr.rom_ver = %x \r\n", ImgHdr.rom_ver);
+		MESH_APP_PRINT_INFO("ImgHdr.uid = %x \r\n", ImgHdr.uid);
+		MESH_APP_PRINT_INFO("ImgHdr.ver = %x \r\n", ImgHdr.ver);
+
 	    return 1;
+	}
     else
-        return 0; 
+        return 0;
 }
 
 uint8_t gma_ota_is_ongoing(void)
 {
     return gma_ota_data.start_flag;
+}
+
+void gma_ota_clear_ongoingFlag(void)
+{
+	gma_ota_data.start_flag = 0;
 }
 
 void gma_ota_wdt_reset_flag_set(uint8_t value)
@@ -1119,8 +1380,9 @@ void gma_ota_write_flash(void)
 {
     if(gma_ota_is_ongoing() && (gma_ota_data.frame_len))
     {
+    	//GMA_PRINTF("frame_len=%d",gma_ota_data.frame_len);
         calccrc1 = genCrc16CCITT(calccrc1, gma_ota_data.frame, gma_ota_data.frame_len);
-    	//flash_write(FLASH_SPACE_TYPE_MAIN, gma_ota_data.data_addr/4, gma_ota_data.frame_len,gma_ota_data.frame);
+    	flash_write(FLASH_MAIN_BASE_ADDR, gma_ota_data.data_addr, gma_ota_data.frame_len,gma_ota_data.frame,NULL);
     	gma_ota_data.data_addr += gma_ota_data.frame_len;
     	gma_ota_data.frame_len = 0;
 	}
@@ -1135,19 +1397,31 @@ void gma_ota_save_data(uint8_t *buf, uint32_t len)
 uint8_t gma_ota_end_result(void) 
 {
     uint8_t result = GMA_OTA_FAIL;
-
-	GMA_PRINTF("OTA_END:\r\n");
-    
+	  GMA_PRINTF("OTA_END:\r\n");
+	
+	  CloseGmaOtaAdv_ClearFlag();
+	
     if(gma_ota_calc_crc())
     {
         result = GMA_OTA_SUCCESS;
         GMA_PRINTF("OTA_SUCCESS!!!\r\n");
+		wdt_reset(0xFFF);
+        //wdt_enable(100);
+        //while (1);
     }
     else
     {
         result = GMA_OTA_FAIL;
         GMA_PRINTF("OTA_FAIL!!!\r\n");
+#if GMA_SUPPORT		//clean backup flash.
+		gma_callback_t cb;
+		if ((cb = gma_get_disconn_handler()) != NULL)
+		{
+			cb();
+		}
+#endif
     }
+
     return result;
 }
 
@@ -1166,21 +1440,25 @@ void gma_reply_ota_fw_ver(uint8_t msg_id)
     reply_rsp_head.cmd = CMD_OTA_FW_VER_RSP;
     reply_rsp_head.fn = 0;
     reply_rsp_head.total_fn = 0;
-
     data[0] = 0x00;                           // firmware type
     ImgHdr.ver = 0;
     ImgHdr.rom_ver = 0;
-    //flash_read(FLASH_SPACE_TYPE_MAIN, SEC_IMAGE_OAD_HEADER_APP_FADDR/4, sizeof(img_hdr_t), (uint8_t *)&ImgHdr);
-    data[1] = (ImgHdr.ver & 0xff);            //firmware version
-    data[2] = ((ImgHdr.ver >> 8) & 0xff);     //firmware version
-    data[3] = (ImgHdr.rom_ver & 0xff);        //firmware version
-    data[4] = ((ImgHdr.rom_ver >> 8) & 0xff); //firmware version
-
+    flash_read(FLASH_MAIN_BASE_ADDR, SEC_IMAGE_OAD_HEADER_APP_FADDR, sizeof(img_hdr_t), (uint8_t *)&ImgHdr,NULL);
+    data[4] = (ImgHdr.ver & 0xff);            //firmware version
+    data[3] = ((ImgHdr.ver >> 8) & 0xff);     //firmware version
+    data[2] = (ImgHdr.rom_ver & 0xff);        //firmware version
+    data[1] = ((ImgHdr.rom_ver >> 8) & 0xff); //firmware version
+    // Copy the version info to the new version structuer.
+    
+    //memcpy(&img_hdr_new, &ImgHdr, sizeof(img_hdr_t));
     GMA_DEBUG("reply_ota_fw_ver %d: ", sizeof(data));
     for(i = 0; i < sizeof(data); i++)
         GMA_DEBUG("%02x ", data[i]);
     GMA_DEBUG("\r\n");
 
+    MESH_APP_PRINT_INFO("ImgHdr.rom_ver = %x \r\n", ImgHdr.rom_ver);
+    MESH_APP_PRINT_INFO("ImgHdr.uid = %x \r\n", ImgHdr.uid);
+    MESH_APP_PRINT_INFO("ImgHdr.ver = %x \r\n", ImgHdr.ver);
     if(gma_para_proc.auth_flag)
     {
 #if GMA_AES
@@ -1204,7 +1482,7 @@ void gma_reply_ota_fw_ver(uint8_t msg_id)
 
 uint8_t gma_recv_ota_fw_ver(gma_recv_data_s *gma_recv_data)
 {
-    uint8_t de_out[1], i;
+    uint8_t de_out[50], i;
     int de_len;
     
     if(gma_recv_data->gma_frame_head.save_flag)
@@ -1302,19 +1580,27 @@ uint8_t gma_recv_ota_start(gma_recv_data_s *gma_recv_data)
 
     memset((uint8_t*)&gma_ota_data, 0, sizeof(xm_ota_data_s));
     
-    //flash_read(FLASH_SPACE_TYPE_MAIN,SEC_IMAGE_OAD_HEADER_APP_FADDR/4, sizeof(img_hdr_t), (uint8_t *)&ImgHdr);
+	flash_read(FLASH_MAIN_BASE_ADDR, SEC_IMAGE_OAD_HEADER_APP_FADDR, sizeof(img_hdr_t), (uint8_t *)&ImgHdr,NULL);
     ver_old = ImgHdr.ver = 1;
     memcpy((uint8_t *)&fw_type, &de_out[0], 1);
     memcpy((uint8_t *)&ver_new, &de_out[1], 4);
     memcpy((uint8_t *)&gma_ota_data.bin_len, &de_out[5], 4);
-    memcpy((uint8_t *)&gma_ota_data.bin_crc, &de_out[9], 2);        
+    memcpy((uint8_t *)&gma_ota_data.bin_crc, &de_out[9], 2);
     memcpy((uint8_t *)&ota_flag, &de_out[11], 1);
+    uint8_t *stream = &de_out[1];
+    img_hdr_new.len = gma_ota_data.bin_len;
+    img_hdr_new.crc = gma_ota_data.bin_crc;
+    STREAM_TO_UINT16(img_hdr_new.rom_ver, stream);
+    STREAM_TO_UINT16(img_hdr_new.ver, stream);
+    GMA_PRINTF("fw_type:%x, ver_new:%x, ver_old:%x, rom_ver=0x%x,ver=0x%x,total_len:%x, total_crc:%x, ota_flag:%x\r\n",fw_type,ver_new,ver_old,img_hdr_new.rom_ver,img_hdr_new.ver,gma_ota_data.bin_len,gma_ota_data.bin_crc,ota_flag);
 
-    GMA_PRINTF("fw_type:%x, ver_new:%x, ver_old:%x, total_len:%x, total_crc:%x, ota_flag:%x\r\n",fw_type,ver_new,ver_old,gma_ota_data.bin_len,gma_ota_data.bin_crc,ota_flag);
-
+	
     if((ver_new != ver_old) && (!ota_flag))
     {
         gma_ota_data.start_flag = 1;
+		
+        CloseMeshAdv_Proc();
+		
         gma_reply_ota_start(gma_recv_data->gma_frame_head.msg_id);
     }
     return 0;
@@ -1337,6 +1623,7 @@ void gma_reply_ota_end_check(uint8_t msg_id)
     
     while(gma_ota_data.frame_len)
     {
+    	GMA_PRINTF("-*-in gma_reply");
         gma_ota_write_flash();         //ensure last data write to flash
     }
 
@@ -1364,7 +1651,7 @@ void gma_reply_ota_end_check(uint8_t msg_id)
         memcpy(&send_buf[GMA_PAYLOAD_HEAD], data, sizeof(data));
         en_len = sizeof(data);
     }
-    
+
     reply_rsp_head.f_len = en_len;
     memcpy(send_buf, (uint8_t*)&reply_rsp_head, sizeof(gma_frame_head_s));
 
@@ -1387,7 +1674,7 @@ uint8_t gma_recv_ota_end_check(gma_recv_data_s *gma_recv_data)
         memcpy(de_out, gma_recv_data->data, gma_recv_data->gma_frame_head.f_len);
         de_len = gma_recv_data->gma_frame_head.f_len;
     }
- 
+
     GMA_PRINTF("recv_ota_end_check %d: ", de_len);
     for(i = 0; i < de_len; i++)
         GMA_PRINTF("%02x ", de_out[i]);
@@ -1426,7 +1713,7 @@ uint8_t gma_recv_ota_pdu(gma_recv_data_s *gma_recv_data)
 
     if(gma_ota_data.data_len == 0)
     {
-        gma_ota_data.data_addr = SEC_BACKUP_OAD_HEADER_FADDR;
+        gma_ota_data.data_addr = SEC_IMAGE_BACKUP_OAD_HEADER_FADDR;
     }
 
     gma_ota_data.data_len += gma_recv_data->gma_frame_head.f_len;
@@ -1565,4 +1852,78 @@ void gma_recv_decode(uint8_t *buf, uint16_t len)
         frame_len = gma_raw_data[3] + GMA_PAYLOAD_HEAD;
     }
 }
+
+void Start_GmaOTA_Adv(void){
+	extern void m_prov_bearer_gatt_custom_adv_set(uint8_t *adv_data, uint8_t len);
+	extern void m_prov_bearer_gatt_start(void);
+	m_prov_bearer_gatt_custom_adv_set(adv_gma_data, sizeof(adv_gma_data)/sizeof(adv_gma_data[0]));
+	m_prov_bearer_gatt_start();
+}
+
+void Stop_GmaOTA_Adv(void){
+	extern void m_prov_bearer_gatt_stop(void);
+	m_prov_bearer_gatt_stop();
+}
+
+
+static void gma_ble_disconnect_cb(void)
+{
+	if(gma_ota_is_ongoing()){
+		GLOBAL_INT_STOP();
+		oads_erase_backup_sec();
+		GLOBAL_INT_START();
+		CloseGmaOtaAdv_ClearFlag();
+	}
+}
+
+
+static void gma_register_disconnect_cb(gma_callback_t cb)
+{
+    gma_discon_cb = cb;
+}
+
+gma_callback_t gma_get_disconn_handler(void)
+{
+	GMA_PRINTF("in callback\n");
+
+	
+    return gma_discon_cb;
+}
+
+static void CloseMeshAdv_Proc(void)
+{
+	app_mesh_disable();
+	MESH_APP_PRINT_INFO("--1app mesh disable");
+	m_lay_proxy_bearer_stop();
+	MESH_APP_PRINT_INFO("--disable mesh adv\n");
+}
+
+void CloseMeshAdv_OpenGmaOtaAdv(void)
+{
+	flag_global |= Flag_Flash_Start;
+	flash_times_cnt = GmaOta_FlashTimes;
+	app_mesh_disable();
+	m_lay_proxy_bearer_stop();
+	
+	Start_GmaOTA_Adv();
+	MESH_APP_PRINT_INFO("--disable mesh adv,open gmaOta adv\n");
+}
+
+static void CloseGmaOtaAdv_OpenMeshAdv(void)
+{
+	void m_prov_bearer_gatt_start(void);
+	MESH_APP_PRINT_INFO("-**-disable gmaOta adv,open mesh adv\n");
+	app_mesh_enable();
+	m_prov_bearer_gatt_start();
+	Stop_GmaOTA_Adv();
+}
+
+static void CloseGmaOtaAdv_ClearFlag(void)
+{
+	gma_ota_clear_ongoingFlag();
+	flag_gma &= (~Flag_InGmaState);
+	CloseGmaOtaAdv_OpenMeshAdv();
+}
+
+
 #endif

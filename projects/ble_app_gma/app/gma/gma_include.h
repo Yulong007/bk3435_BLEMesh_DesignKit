@@ -12,6 +12,7 @@
 typedef unsigned int u32;
 typedef unsigned short u16;
 typedef unsigned char u8;
+typedef unsigned short      UINT16;
 
 extern signed int uart_printf(const char *fmt, ...);
 
