@@ -90,9 +90,7 @@ void app_mesh_init(void)
     mesh_stack_param_init();
 
     mal_adv_report_register(app_mesh_adv_report_cb);
-#if (MESH_MEM_TB_BUF_DBG)
-    mesh_mem_dbg_init();
-#endif /* MESH_MEM_TB_BUF_DBG */
+
 }
 
 void app_mesh_add_mesh(void)

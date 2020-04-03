@@ -85,9 +85,6 @@ void app_mesh_init(void)
     mesh_stack_param_init();
 
     mal_adv_report_register(app_mesh_adv_report_cb);
-#if (MESH_MEM_TB_BUF_DBG)
-    mesh_mem_dbg_init();
-#endif /* MESH_MEM_TB_BUF_DBG */
 }
 
 void app_mesh_add_mesh(void)
@@ -154,7 +151,6 @@ void app_ali_set_unprov_adv_state(uint8_t state)
 {
     uint8_t len = sizeof(state);
     uint32_t ret;
-    UNUSED(ret);
     ret = nvds_put(NVDS_TAG_MESH_PROV_STATE, len, (uint8_t*)&state);
 
 }
@@ -164,7 +160,7 @@ uint8_t app_ali_get_unprov_adv_state(void)
     uint8_t state;
     uint8_t len = sizeof(state);
     uint32_t ret;
-    UNUSED(ret);
+
     ret = nvds_get(NVDS_TAG_MESH_PROV_STATE, &len, (uint8_t*)&state);
 
     return state;
