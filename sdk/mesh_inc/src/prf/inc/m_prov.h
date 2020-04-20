@@ -118,6 +118,11 @@ uint16_t m_prov_start_dev_prov(uint8_t  algorithm, uint8_t  pub_key, uint8_t  au
 
 #if (BLE_MESH_PROVISIONER)
 uint16_t m_prov_net_key_add(uint16_t net_key_id, const uint8_t *p_net_key, uint8_t flags);
+
+void m_prov_set_start_state(bool state);
+
+bool m_prov_get_start_state(void);
+
 #endif //BLE_MESH_PROVISIONER
 
 /// @} end of group

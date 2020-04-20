@@ -139,7 +139,7 @@
 #define PWM_DRIVER                      1
 
 
-#define MAC78da07bcd71b 1 //yushi   
+#define MAC78da07bcd71b 0 //yushi   
 #define MAC78da07bcd71c 0 //mengkou  
 #define MAC78da07bcd71d 0 //chufang  
 

@@ -25,13 +25,18 @@
 #define MESH_TRACE_LEVEL_INFO    3          /* Information traces                           */
 #define MESH_TRACE_LEVEL_DEBUG   4          /* Debug messages for events            */
 
-#define MESH_APP_LOG_LEVEL       MESH_TRACE_LEVEL_DEBUG    /* Define the Mesh Application log default value to Debug. */
+//#define MESH_APP_LOG_LEVEL       MESH_TRACE_LEVEL_DEBUG    /* Define the Mesh Application log default value to Debug. */
+#define MESH_APP_LOG_LEVEL       MESH_TRACE_LEVEL_DEBUG
+
 
 #define MESH_NET_LOG_LEVEL       MESH_TRACE_LEVEL_WARNING  /* Define the Mesh Network log default value to Warning. */
-#define MESH_MODEL_LOG_LEVEL     MESH_TRACE_LEVEL_DEBUG  /* Define the Mesh Model log default value to Warning. */
+ 
+//#define MESH_MODEL_LOG_LEVEL     MESH_TRACE_LEVEL_NONE  /* Define the Mesh Model log default value to Warning. */
+#define MESH_MODEL_LOG_LEVEL     MESH_TRACE_LEVEL_WARNING  /* Define the Mesh Model log default value to Warning. */
+
 #define MESH_PRO_LOG_LEVEL       MESH_TRACE_LEVEL_WARNING  /* Define the Mesh Provisioning log default value to Warning. */
 #define MESH_TRANS_LOG_LEVEL     MESH_TRACE_LEVEL_WARNING  /* Define the Mesh Transation log default value to Warning. */
-
+ 
 #define MESH_BEAR_LOG_LEVEL      MESH_TRACE_LEVEL_WARNING  /* Define the Mesh Bearer log default value to Warning. */
 #define MESH_ACCESS_LOG_LEVEL    MESH_TRACE_LEVEL_WARNING  /* Define the Mesh Access log default value to Warning. */
 #define MESH_TB_LOG_LEVEL        MESH_TRACE_LEVEL_WARNING  /* Define the Mesh TB log default value to Warning. */
@@ -64,7 +69,6 @@
 #endif //CONFIG_LOG_COLORS
 
 #define LOG_FORMAT(tag, letter, format)  #tag " " LOG_COLOR_ ## letter #letter ": " format "\n"
-
 
 #if (BLE_MESH_LOG_OUTPUT)
 /* Define tracing for Mesh Network uint

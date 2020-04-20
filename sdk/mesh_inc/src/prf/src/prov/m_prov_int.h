@@ -36,7 +36,7 @@
  ****************************************************************************************
  */
 /// size of confirmation inputs length
-#define M_PROV_COMP_DATA_LEN                     (161)
+#define M_PROV_COMP_DATA_LEN                     (161 + 96 + 32 + 120 + 16)
 
 /// Link close reasons
 enum m_prov_reason

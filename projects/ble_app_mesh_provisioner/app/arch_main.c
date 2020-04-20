@@ -19,25 +19,25 @@
            |------------------|
            |   BACK_UP(176KB) |
            |                                    |
-0x00054000  |------------------| F_ADDR = 0x00054000
+0x00054000 |------------------| F_ADDR = 0x00054000
            |                                    |
            |   USER_CONF(4KB) |
-0x00053000  |------------------| F_ADDR = 0x00053000
+0x00053000 |------------------| F_ADDR = 0x00053000
            |   NVDS(4KB)      |
            |                                    |
-0x00052000  |------------------| F_ADDR = 0x00052000
+0x00052000 |------------------| F_ADDR = 0x00052000
            |                                    |
            |   APP(176KB)     |
            |                                    |
-0x00026000  |------------------| C_ADDR = 0x23E00,F_ADDR = 0x261E0 (APP)(0x261D0 16byte stack image header)
+0x00026000 |------------------| C_ADDR = 0x23E00,F_ADDR = 0x261E0 (APP)(0x261D0 16byte stack image header)
            |                                    |
            |  STACK(140KB)    |
            |                                    |
-0x00003000  |------------------| C_ADDR = 0x2F00,F_ADDR = 0x31F0 (STACK)(0x31e0 16byte stack image header)
+0x00003000 |------------------| C_ADDR = 0x2F00,F_ADDR = 0x31F0 (STACK)(0x31e0 16byte stack image header)
            |                                    |
            |    BIM(12KB)     |
            |                                    |
-0x00000000  |------------------|
+0x00000000 |------------------|
 
 */
 
@@ -432,6 +432,12 @@ void rw_app_enter(void)
 #endif
         Stack_Integrity_Check();
         GLOBAL_INT_RESTORE();
+
+        loop++;
+        if (loop % 850000 == 0)
+        {
+            MESH_APP_PRINT_INFO("rwip_schedule %d\n", loop1++);
+        }
     }
 }
 
