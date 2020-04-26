@@ -593,7 +593,6 @@ static int app_mesh_msg_model_app_bind_handler(ke_msg_id_t const msgid,
         {
             config_num = 5;
             light_prov_complete();
-            m_tb_store_config(10);
             m_tb_state_set_relay_state(1, 1);
             app_unprov_adv_timeout_set(0);
         }
@@ -914,7 +913,7 @@ static int app_mesh_api_prov_state_ind_handler(ke_msg_id_t const msgid,
     }
     else if (param->state == M_PROV_SUCCEED)
     {
-        m_tb_store_config(20);
+        // m_tb_store_config(20);
         MESH_APP_PRINT_INFO("+++++++ M_PROV_SUCCEED +++++++ \n");
     }
 
@@ -989,6 +988,12 @@ static int app_mesh_unprov_beacon_handler(ke_msg_id_t const msgid,
     for (int i = 0; i < MESH_KEY_LEN; i++)
     {
         app_key[i] = (i+0x0B)*i - i^3 + 17;
+    }
+
+    if (m_tb_state_get_prov_state() == M_TB_STATE_PROV_STATE_PROV)
+    {
+        // Stop Update the data to nvds when doing provisioning.
+        m_tb_store_config(0);
     }
 
     m_api_add_network_key(net_key_id, &net_key[0]);
@@ -1147,7 +1152,7 @@ static int app_mesh_model_subs_sts_handler(ke_msg_id_t const msgid,
     reprov_timer.cb = reprov_timer_cb;
     reprov_timer.period = 1000;
     mesh_tb_timer_set(&reprov_timer, reprov_timer.period);
-
+    m_tb_store_config(10);
     if (p_ind && (p_ind->status == MESH_ERR_NO_ERROR))
     {
         app_mesh_on_onff_loop(p_ind->dev_lid);
