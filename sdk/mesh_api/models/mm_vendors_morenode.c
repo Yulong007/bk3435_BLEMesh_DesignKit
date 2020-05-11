@@ -526,7 +526,7 @@ __STATIC void mm_vendors_handler_set(mm_vendors_env_t *p_env_vdr, mesh_tb_buf_t 
 		
 		  if(gdst_temp >= 0xc000)
 		  {
-			 m_tb_store_config(0);
+			 //m_tb_store_config(0);
 			 //uint32_t time_slot;
 			// uint32_t time_us;
 			 //lld_evt_time_get_us(&time_slot, &time_us);
@@ -634,7 +634,7 @@ __STATIC void mm_vendors_handler_set(mm_vendors_env_t *p_env_vdr, mesh_tb_buf_t 
 		gpio_set(0x31, p_data[3] % 2);
 		#endif
 		vendor_20bytes_tx_calc++;
-		m_tb_store_config(0);
+		//m_tb_store_config(0);
 		//MESH_APP_PRINT_INFO("vendor_rx_calc = %d\n",vendor_20bytes_tx_calc);
 		//MESH_APP_PRINT_INFO("source addr = 0x%x,vendor_rx_calc = %d\n",p_route_env->u_addr.src,vendor_20bytes_tx_calc); //change 0216
 		MESH_APP_PRINT_INFO("R%d\n",vendor_20bytes_tx_calc);
@@ -1462,5 +1462,47 @@ void mm_vendor_attr_indication_publish(uint16_t attr_type,uint8_t len,uint8_t *v
 
     }
 
+}
+
+uint16_t mm_vendorc_transition(m_lid_t mdl_lid, m_lid_t app_key_lid, 
+                                           uint16_t dst, 
+                                           uint32_t opcode, uint8_t *data, uint16_t length)
+{
+    if (!data || !length)
+    {
+        MESH_MODEL_PRINT_WARN("%s, Invalid parameters, data is NULL.\n", __func__);
+        return MESH_ERR_INVALID_PARAM;
+    }
+    
+    // Pointer to the buffer that will contain the message
+    mesh_tb_buf_t *p_buf_set;
+    // Allocate a new buffer
+    uint8_t status = mm_route_buf_alloc(&p_buf_set, length);
+
+    if (status == MESH_ERR_NO_ERROR)
+    {
+        // Get pointer to data
+        uint8_t *p_data = MESH_TB_BUF_DATA(p_buf_set);
+        // Get pointer to environment
+        mm_route_buf_env_t *p_buf_env = (mm_route_buf_env_t *)&p_buf_set->env;
+
+        // Prepare environment
+        p_buf_env->app_key_lid = app_key_lid; // TODO [LT]
+        p_buf_env->u_addr.dst = dst;
+        p_buf_env->info = 0;
+        p_buf_env->mdl_lid = mdl_lid;
+        p_buf_env->opcode = opcode;
+
+        memcpy(p_data, data, length);
+
+        // Send the message
+        mm_route_send(p_buf_set);
+    }
+    else
+    {
+        MESH_MODEL_PRINT_WARN("%s, Alloc buffer fail.\n", __func__);
+    }
+
+    return (status);
 }
 

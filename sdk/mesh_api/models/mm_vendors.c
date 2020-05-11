@@ -706,3 +706,45 @@ void mm_vendor_attr_indication(uint16_t attr_type, uint8_t len, uint8_t *value)
 
 }
 
+uint16_t mm_vendorc_transition(m_lid_t mdl_lid, m_lid_t app_key_lid, 
+                                           uint16_t dst, 
+                                           uint32_t opcode, uint8_t *data, uint16_t length)
+{
+    if (!data || !length)
+    {
+        MESH_MODEL_PRINT_WARN("%s, Invalid parameters, data is NULL.\n", __func__);
+        return MESH_ERR_INVALID_PARAM;
+    }
+    
+    // Pointer to the buffer that will contain the message
+    mesh_tb_buf_t *p_buf_set;
+    // Allocate a new buffer
+    uint8_t status = mm_route_buf_alloc(&p_buf_set, length);
+
+    if (status == MESH_ERR_NO_ERROR)
+    {
+        // Get pointer to data
+        uint8_t *p_data = MESH_TB_BUF_DATA(p_buf_set);
+        // Get pointer to environment
+        mm_route_buf_env_t *p_buf_env = (mm_route_buf_env_t *)&p_buf_set->env;
+
+        // Prepare environment
+        p_buf_env->app_key_lid = app_key_lid; // TODO [LT]
+        p_buf_env->u_addr.dst = dst;
+        p_buf_env->info = 0;
+        p_buf_env->mdl_lid = mdl_lid;
+        p_buf_env->opcode = opcode;
+
+        memcpy(p_data, data, length);
+
+        // Send the message
+        mm_route_send(p_buf_set);
+    }
+    else
+    {
+        MESH_MODEL_PRINT_WARN("%s, Alloc buffer fail.\n", __func__);
+    }
+
+    return (status);
+}
+

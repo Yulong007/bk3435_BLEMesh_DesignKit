@@ -174,7 +174,7 @@ void light_prov_success_flash_timer_cb(void *timer)
 
     MESH_APP_PRINT_INFO("light_prov_success_flash_timer_cb:prov_flash_count = %d\n", prov_flash_count);
 
-    if (prov_flash_count%2 == 0)
+    if (prov_flash_count % 2 == 0)
     {
         //  3 or 1;
         light_lightness_set(0);

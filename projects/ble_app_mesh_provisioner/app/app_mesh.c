@@ -176,6 +176,7 @@ void app_mesh_model_app_bind(m_lid_t dev_lid)
     mal_msg_send(prf_get_task_from_id(TASK_ID_MESH), cmd);
 }
 
+extern m_lid_t g_vdr_lid;
 void app_mesh_model_subs_add(m_lid_t dev_lid, bool is_sig, uint16_t addr)
 {
     MESH_APP_PRINT_INFO("%s, oo model lid %d\n", __func__, g_oo_mdl_lid);
@@ -186,7 +187,7 @@ void app_mesh_model_subs_add(m_lid_t dev_lid, bool is_sig, uint16_t addr)
         cmd->cmd_code = M_API_CONFC_DEV_APP_SUBS_ADD;
         cmd->dev_lid = dev_lid;
         cmd->is_sig = is_sig;
-        cmd->model_lid = g_oo_mdl_lid;
+        cmd->model_lid = g_vdr_lid;//g_oo_mdl_lid;
         cmd->addr = addr;
 
         mal_msg_send(prf_get_task_from_id(TASK_ID_MESH), cmd);
@@ -239,13 +240,13 @@ void app_mesh_set_on_off(m_lid_t dev_lid, uint8_t onoff)
     m_tb_key_dev_info_t* p_dev_info;
     uint16_t status;
     uint16_t subs_nb_addr;
-    m_lid_t sub_mdl_lid = mm_tb_state_get_lid(0, MM_ID_GENS_OO);
+    m_lid_t sub_mdl_lid = mm_tb_state_get_lid(0, MM_ID_VENDORS);
     memset(cmd, 0, sizeof(mm_api_cli_transition_cmd_t));
     p_dev_info = m_tb_key_dev_info_get(dev_lid);
 
     cmd->cmd_code = MM_API_CLI_TRANSITION;
     cmd->state_1 = onoff;
-    cmd->mdl_lid = mm_tb_state_get_lid(0, MM_ID_GENC_OO);
+    cmd->mdl_lid = mm_tb_state_get_lid(0, MM_ID_VENDORS);
     subs_nb_addr = m_tb_mio_get_subscription_list_size(sub_mdl_lid);
     if (0 == subs_nb_addr)
     {
@@ -278,7 +279,10 @@ void app_mesh_set_on_off(m_lid_t dev_lid, uint8_t onoff)
         m_tb_mio_bind(cmd->mdl_lid);
     }
 
-    mal_msg_send(prf_get_task_from_id(TASK_ID_MESH), cmd);
+    uint8_t send_data[2] = {0x01, 00};
+    // mal_msg_send(prf_get_task_from_id(TASK_ID_MESH), cmd);
+    mm_vendorc_transition(cmd->mdl_lid, p_dev_info->app_key_lid, cmd->dst, 
+                          MM_MSG_VENDOR_ATTR_ATTR_SET, send_data, sizeof(send_data));
     mal_free(subs_addr);
 }
 
@@ -1120,7 +1124,7 @@ static void app_mesh_on_onff_loop(m_lid_t dev_lid)
     binding_timer.period = 5000;
     mesh_tb_timer_set(&binding_timer, binding_timer.period);
 }
-
+ 
 static int app_mesh_model_app_sts_handler(ke_msg_id_t const msgid,
         void const *param,
         ke_task_id_t const dest_id,
@@ -1133,7 +1137,7 @@ static int app_mesh_model_app_sts_handler(ke_msg_id_t const msgid,
 
     if (p_ind && (p_ind->status == MESH_ERR_NO_ERROR))
     {
-        app_mesh_model_subs_add(p_ind->dev_lid, true, app_subs_addr);
+        app_mesh_model_subs_add(p_ind->dev_lid, false, app_subs_addr);
     }
 
     return (KE_MSG_CONSUMED);
