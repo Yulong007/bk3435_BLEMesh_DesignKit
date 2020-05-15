@@ -307,6 +307,7 @@ extern uint16_t genoff_rx_calc;
 __STATIC void mm_gens_oo_handler_set(mm_gens_oo_env_t *p_env_oo, mesh_tb_buf_t *p_buf,
                                      mm_route_buf_env_t *p_route_env)
 {
+
     do
     {
         // Get pointer to data
@@ -329,9 +330,9 @@ __STATIC void mm_gens_oo_handler_set(mm_gens_oo_env_t *p_env_oo, mesh_tb_buf_t *
         gpio_set(0x33, onoff);
 		#endif
 		
-	    genoff_rx_calc++;
-	    //m_tb_store_config(0);
-	    //MESH_APP_PRINT_INFO("source addr = 0x%x,genoff_rx_calc = %d\n",p_route_env->u_addr.src ,genoff_rx_calc);
+	genoff_rx_calc++;
+	m_tb_store_config(0);
+	//MESH_APP_PRINT_INFO("source addr = 0x%x,genoff_rx_calc = %d\n",p_route_env->u_addr.src ,genoff_rx_calc);
 		MESH_APP_PRINT_INFO("R%d\n",genoff_rx_calc);
 		
         //MESH_APP_PRINT_INFO("%s,onoff:%d,p_env_oo->onoff:%d,p_env_oo->tgt_onoff:%d,tid:%d\r\n", __func__, onoff, p_env_oo->onoff, p_env_oo->tgt_onoff, tid);
@@ -594,7 +595,7 @@ __STATIC uint16_t mm_gens_oo_cb_set(mm_tb_state_mdl_env_t *p_env, uint16_t state
     uint16_t status = MESH_ERR_NO_ERROR;
 
     MESH_MODEL_PRINT_DEBUG("%s\r\n", __func__);
-    //m_tb_store_config(0);
+    m_tb_store_config(0);
 	#if 0
     m_tb_state_set_relay_state(M_CONF_RELAY_STATE_DISABLED, M_CONF_RELAY_STATE_DISABLED);  ///0216 
 	#endif

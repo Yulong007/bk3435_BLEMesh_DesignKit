@@ -126,7 +126,7 @@ void app_mesh_start_dev_prov(void)
 
     cmd->algorithm = 0;
     cmd->pub_key = 0; // no oob pub key
-    cmd->auth_method = 1; // Static oob authentication is used
+    cmd->auth_method = 1;
     cmd->auth_action = 0;
     cmd->auth_size = M_OOB_AUTH_DATA_LEN;
     cmd->dev_pub_key = NULL;
@@ -176,7 +176,6 @@ void app_mesh_model_app_bind(m_lid_t dev_lid)
     mal_msg_send(prf_get_task_from_id(TASK_ID_MESH), cmd);
 }
 
-extern m_lid_t g_vdr_lid;
 void app_mesh_model_subs_add(m_lid_t dev_lid, bool is_sig, uint16_t addr)
 {
     MESH_APP_PRINT_INFO("%s, oo model lid %d\n", __func__, g_oo_mdl_lid);
@@ -187,7 +186,7 @@ void app_mesh_model_subs_add(m_lid_t dev_lid, bool is_sig, uint16_t addr)
         cmd->cmd_code = M_API_CONFC_DEV_APP_SUBS_ADD;
         cmd->dev_lid = dev_lid;
         cmd->is_sig = is_sig;
-        cmd->model_lid = g_vdr_lid;//g_oo_mdl_lid;
+        cmd->model_lid = g_oo_mdl_lid;
         cmd->addr = addr;
 
         mal_msg_send(prf_get_task_from_id(TASK_ID_MESH), cmd);
@@ -240,13 +239,13 @@ void app_mesh_set_on_off(m_lid_t dev_lid, uint8_t onoff)
     m_tb_key_dev_info_t* p_dev_info;
     uint16_t status;
     uint16_t subs_nb_addr;
-    m_lid_t sub_mdl_lid = mm_tb_state_get_lid(0, MM_ID_VENDORS);
+    m_lid_t sub_mdl_lid = mm_tb_state_get_lid(0, MM_ID_GENS_OO);
     memset(cmd, 0, sizeof(mm_api_cli_transition_cmd_t));
     p_dev_info = m_tb_key_dev_info_get(dev_lid);
 
     cmd->cmd_code = MM_API_CLI_TRANSITION;
     cmd->state_1 = onoff;
-    cmd->mdl_lid = mm_tb_state_get_lid(0, MM_ID_VENDORS);
+    cmd->mdl_lid = mm_tb_state_get_lid(0, MM_ID_GENC_OO);
     subs_nb_addr = m_tb_mio_get_subscription_list_size(sub_mdl_lid);
     if (0 == subs_nb_addr)
     {
@@ -279,10 +278,7 @@ void app_mesh_set_on_off(m_lid_t dev_lid, uint8_t onoff)
         m_tb_mio_bind(cmd->mdl_lid);
     }
 
-    uint8_t send_data[2] = {0x01, 00};
-    // mal_msg_send(prf_get_task_from_id(TASK_ID_MESH), cmd);
-    mm_vendorc_transition(cmd->mdl_lid, p_dev_info->app_key_lid, cmd->dst, 
-                          MM_MSG_VENDOR_ATTR_ATTR_SET, send_data, sizeof(send_data));
+    mal_msg_send(prf_get_task_from_id(TASK_ID_MESH), cmd);
     mal_free(subs_addr);
 }
 
@@ -296,23 +292,6 @@ void app_mesh_reg_on_off(void)
     cmd->cmdl_idx = MM_CMDL_IDX_GENC_ONOFF;
 
     mal_msg_send(prf_get_task_from_id(TASK_ID_MESH), cmd);
-}
-
-static void app_mesh_adv_report_cb(const struct adv_report* p_report)
-{
-#if 0
-    MESH_APP_PRINT_INFO("evt_type = %x  :%s\n", p_report->evt_type, (p_report->evt_type == ADV_CONN_UNDIR) ? \
-                        "ADV_CONN_UNDIR" :(p_report->evt_type == ADV_CONN_DIR)? \
-                        "ADV_CONN_DIR" : (p_report->evt_type == ADV_DISC_UNDIR)? \
-                        "ADV_DISC_UNDIR" : (p_report->evt_type == ADV_NONCONN_UNDIR)? \
-                        "ADV_NONCONN_UNDIR": "Unknow");
-
-    MESH_APP_PRINT_INFO("adv_addr = %02x:%02x:%02x:%02x:%02x:%02x\n",
-                        p_report->adv_addr.addr[0], p_report->adv_addr.addr[1],
-                        p_report->adv_addr.addr[2], p_report->adv_addr.addr[3],
-                        p_report->adv_addr.addr[4], p_report->adv_addr.addr[5]);
-   // app_relay_user_adv(30, 2,6, p_report->adv_addr.addr);
-#endif // #if 0
 }
 
 void app_mesh_init(void)
@@ -597,6 +576,7 @@ static int app_mesh_msg_model_app_bind_handler(ke_msg_id_t const msgid,
         {
             config_num = 5;
             light_prov_complete();
+            m_tb_store_config(10);
             m_tb_state_set_relay_state(1, 1);
             app_unprov_adv_timeout_set(0);
         }
@@ -769,7 +749,7 @@ static int app_mesh_api_prov_auth_data_req_ind_handler(ke_msg_id_t const msgid,
     MESH_APP_PRINT_INFO("app_mesh_api_prov_auth_data_req_ind_handler\n");
 
 
-    char *str[4] =    {"M_PROV_AUTH_NO_OOB",
+    uint8_t *str[4] = {"M_PROV_AUTH_NO_OOB",
                        /// Static OOB authentication is used
                        "M_PROV_AUTH_STATIC_OOB",
                        /// Output OOB authentication is used
@@ -831,14 +811,6 @@ static int app_mesh_api_prov_auth_data_req_ind_handler(ke_msg_id_t const msgid,
     cfm->auth_data[9] = 0x5a; cfm->auth_data[10] = 0x4e; cfm->auth_data[11] = 0x2b;
     cfm->auth_data[12] = 0x2a; cfm->auth_data[13] = 0xc0; cfm->auth_data[14] = 0x70;
     cfm->auth_data[15] = 0xe2;
-#else
-    // 78da07bcd71b; eddc0a4d10287aa2adce37866ad3f2e5
-    cfm->auth_data[0] = 0xe5; cfm->auth_data[1] = 0xf2; cfm->auth_data[2] = 0xd3;
-    cfm->auth_data[3] = 0x6a; cfm->auth_data[4] = 0x86; cfm->auth_data[5] = 0x37;
-    cfm->auth_data[6] = 0xce; cfm->auth_data[7] = 0xad; cfm->auth_data[8] = 0xa2;
-    cfm->auth_data[9] = 0x7a; cfm->auth_data[10] = 0x28; cfm->auth_data[11] = 0x10;
-    cfm->auth_data[12] = 0x4d; cfm->auth_data[13] = 0x0a; cfm->auth_data[14] = 0xdc;
-    cfm->auth_data[15] = 0xed;
 #endif // 
 
 #if TEST_MESH_OTA
@@ -876,6 +848,111 @@ static int app_mesh_api_prov_auth_data_req_ind_handler(ke_msg_id_t const msgid,
     return (KE_MSG_CONSUMED);
 }
 
+static int app_mesh_api_prov_param_req_ind_handler(ke_msg_id_t const msgid,
+        void const *param,
+        ke_task_id_t const dest_id,
+        ke_task_id_t const src_id)
+{
+    MESH_APP_PRINT_INFO("app_mesh_api_prov_param_req_ind_handler.\n");
+    //sean add
+    m_api_prov_param_cfm_t *cfm = KE_MSG_ALLOC(MESH_API_PROV_PARAM_CFM, prf_get_task_from_id(TASK_ID_MESH), TASK_APP, m_api_prov_param_cfm);
+
+    cfm->dev_uuid[0] = 0xa8; cfm->dev_uuid[1] = 0x01; // CID
+    cfm->dev_uuid[2] = 0x71;  // PID
+
+#if MAC78da07bcd71b
+    cfm->dev_uuid[3] = 0x33; cfm->dev_uuid[4] = 0x02; cfm->dev_uuid[5] = 0x00; cfm->dev_uuid[6] = 0x00; // PRODUCT ID
+    cfm->dev_uuid[7] = 0x1b; cfm->dev_uuid[8] = 0xd7;
+    cfm->dev_uuid[9] = 0xbc; cfm->dev_uuid[10] = 0x07;
+    cfm->dev_uuid[11] = 0xda; cfm->dev_uuid[12] = 0x78; //MAC
+    cfm->dev_uuid[13] = 0x00; cfm->dev_uuid[14] = 0x00; cfm->dev_uuid[15] = 0x00; //RFU
+    cfm->uri_hash = 0x0;
+    cfm->oob_info = 0x0000;
+
+#elif   MAC78da07bcd71c
+    cfm->dev_uuid[3] = 0x33; cfm->dev_uuid[4] = 0x02; cfm->dev_uuid[5] = 0x00; cfm->dev_uuid[6] = 0x00; // PRODUCT ID
+    cfm->dev_uuid[7] = 0x1c; cfm->dev_uuid[8] = 0xd7;
+    cfm->dev_uuid[9] = 0xbc; cfm->dev_uuid[10] = 0x07;
+    cfm->dev_uuid[11] = 0xda; cfm->dev_uuid[12] = 0x78; //MAC
+    cfm->dev_uuid[13] = 0x00; cfm->dev_uuid[14] = 0x00; cfm->dev_uuid[15] = 0x00; //RFU
+    cfm->uri_hash = 0x0;
+    cfm->oob_info = 0x0000;
+
+#elif   MAC78da07bcd71d
+    cfm->dev_uuid[3] = 0x33; cfm->dev_uuid[4] = 0x02; cfm->dev_uuid[5] = 0x00; cfm->dev_uuid[6] = 0x00; // PRODUCT ID
+    cfm->dev_uuid[7] = 0x1d; cfm->dev_uuid[8] = 0xd7;
+    cfm->dev_uuid[9] = 0xbc; cfm->dev_uuid[10] = 0x07;
+    cfm->dev_uuid[11] = 0xda; cfm->dev_uuid[12] = 0x78; //MAC
+    cfm->dev_uuid[13] = 0x00; cfm->dev_uuid[14] = 0x00; cfm->dev_uuid[15] = 0x00; //RFU
+    cfm->uri_hash = 0x0;
+    cfm->oob_info = 0x0000;
+
+#elif   MAC38d2ca08ca20
+    cfm->dev_uuid[3] = 0xFA; cfm->dev_uuid[4] = 0x0B; cfm->dev_uuid[5] = 0x00; cfm->dev_uuid[6] = 0x00; // PRODUCT ID
+    cfm->dev_uuid[7] = 0x20; cfm->dev_uuid[8] = 0xca;
+    cfm->dev_uuid[9] = 0x08; cfm->dev_uuid[10] = 0xca;
+    cfm->dev_uuid[11] = 0xd2; cfm->dev_uuid[12] = 0x38; //MAC
+    cfm->dev_uuid[13] = 0x00; cfm->dev_uuid[14] = 0x00; cfm->dev_uuid[15] = 0x00; //RFU
+    cfm->uri_hash = 0x0;
+    cfm->oob_info = 0x0000;
+
+#endif
+
+#if ALI_MESH
+
+    /** set device uuid */
+    ali_uuid_t dev_uuid;
+    uint8_t bt_addr[6];
+    uint32_t product_id ;
+    if (user_data_contains_ali_data())
+    {
+        product_id = user_data_read_ali_product_id();
+
+        if (user_data_read_ali_mac(bt_addr, 1))
+        {
+            memcpy(dev_uuid.mac_addr, bt_addr, sizeof(bt_addr));
+        }
+        dev_uuid.cid = 0x01A8; //!< taobao
+        dev_uuid.pid.adv_ver = 1;
+        dev_uuid.pid.sec = 1;
+        dev_uuid.pid.ota = 0;
+        dev_uuid.pid.bt_ver = 1;
+        dev_uuid.product_id = product_id;// PRODUCT ID
+
+        // gap_get_param(GAP_PARAM_BD_ADDR, bt_addr);
+        memcpy(dev_uuid.mac_addr, bt_addr, sizeof(bt_addr));
+
+        dev_uuid.feature_flag = 0x00;
+        memset(dev_uuid.rfu, 0, sizeof(dev_uuid.rfu));
+
+        memcpy(cfm->dev_uuid, (uint8_t *)&dev_uuid, 16);
+
+
+    }
+
+
+#endif //ALI_MESH 
+
+
+    for (int i =0 ; i < 16; i++)
+    {
+        MESH_APP_PRINT_INFO("cfm->dev_uuid[%d] = 0x%02x\r\n", i, cfm->dev_uuid[i]);
+    }
+    cfm->static_oob = M_PROV_STATIC_OOB_AVAILABLE;
+    cfm->pub_key_oob = M_PROV_PUB_KEY_OOB_USED;
+    cfm->out_oob_size = 0;
+    cfm->in_oob_size = 0;
+    cfm->out_oob_action = 0;//M_PROV_OUT_OOB_NUMERIC;//M_PROV_OUT_OOB_ALPHANUMERIC;//M_PROV_OUT_OOB_NUMERIC;
+    cfm->in_oob_action = 0;
+    cfm->nb_elt = 3;
+    cfm->info = 0;//M_PROV_INFO_URI_HASH_PRESENT;
+    ke_msg_send(cfm);
+
+
+    return (KE_MSG_CONSUMED);
+}
+
+
 static int app_mesh_api_prov_attention_update_ind_handler(ke_msg_id_t const msgid,
         struct m_api_attention_update_ind const *param,
         ke_task_id_t const dest_id,
@@ -895,7 +972,7 @@ static int app_mesh_api_prov_state_ind_handler(ke_msg_id_t const msgid,
 {
     MESH_APP_PRINT_INFO("%s\n", __func__);
 
-    char *str[3] = {"M_PROV_STARTED", "M_PROV_SUCCEED", "M_PROV_FAILED"};
+    uint8_t *str[3] = {"M_PROV_STARTED", "M_PROV_SUCCEED", "M_PROV_FAILED"};
 
     MESH_APP_PRINT_INFO("state :%s,status:%x\n", str[param->state], param->status);
 
@@ -917,16 +994,22 @@ static int app_mesh_api_prov_state_ind_handler(ke_msg_id_t const msgid,
     }
     else if (param->state == M_PROV_SUCCEED)
     {
-        // m_tb_store_config(20);
-        MESH_APP_PRINT_INFO("+++++++ M_PROV_SUCCEED +++++++ \n");
+        for (int i = 0; i < UN_PROV_DEV_MAX_NUM; i++)
+        {
+            app_mesh_unprov_dev[i].fActive = 0;
+            memset(app_mesh_unprov_dev[i].dev_uuid, 0, MESH_DEV_UUID_LEN);
+            app_mesh_unprov_dev[i].oob_info = 0;
+            app_mesh_unprov_dev[i].uri_hash = 0;
+            m_tb_store_config(20);
+        }
     }
 
     return (KE_MSG_CONSUMED);
 }
 
-static char temp_uuid[7] = {0xa9, 0x01, 0x71, 0x33, 0x02, 0x00, 0x00};
 
-#include "m_prov.h"
+static char temp_uuid[16] = {0xa8, 0x01, 0x71, 0x33, 0x02, 0x00, 0x00, 0x1b, 0xd7, 0xbc, 0x07, 0xda, 0x78, 0x00, 0xaa, 0xaa};
+
 static int app_mesh_unprov_beacon_handler(ke_msg_id_t const msgid,
         void const *param,
         ke_task_id_t const dest_id,
@@ -935,16 +1018,10 @@ static int app_mesh_unprov_beacon_handler(ke_msg_id_t const msgid,
     int i = 0;
     m_api_unprov_beacon_ind_t *p_ind = (m_api_unprov_beacon_ind_t *)param;
 
-    if (!m_prov_get_start_state())
-    {
-        MESH_APP_PRINT_ERR("m_prov_get_start_state false.");
-        // Check the provisioner in the stack layer ready to start or not.
-        return KE_MSG_CONSUMED;
-    }
 
     for (i = 0; i < UN_PROV_DEV_MAX_NUM; i++)
     {
-        // MESH_APP_PRINT_ERR("************ Received the unprov beacon, start provisioning. fActive = %d **********************\n", app_mesh_unprov_dev[i].fActive);
+        //MESH_APP_PRINT_INFO("************ Received the unprov beacon, start provisioning. fActive = %d **********************\n", app_mesh_unprov_dev[i].fActive);
         if (app_mesh_unprov_dev[i].fActive == 1)
         {
             if (0 == memcmp(app_mesh_unprov_dev[i].dev_uuid, p_ind->dev_uuid, MESH_DEV_UUID_LEN))
@@ -953,7 +1030,7 @@ static int app_mesh_unprov_beacon_handler(ke_msg_id_t const msgid,
             }
         }
         if ((app_mesh_unprov_dev[i].fActive == 0) &&
-                (memcmp(temp_uuid, p_ind->dev_uuid, sizeof(temp_uuid)) == 0))
+                (memcmp(temp_uuid, p_ind->dev_uuid, MESH_DEV_UUID_LEN) == 0))
         {
             app_mesh_unprov_dev[i].fActive = 1;
             memcpy(app_mesh_unprov_dev[i].dev_uuid, p_ind->dev_uuid, MESH_DEV_UUID_LEN);
@@ -965,14 +1042,14 @@ static int app_mesh_unprov_beacon_handler(ke_msg_id_t const msgid,
             break;
         }
     }
- 
+
     if (i == UN_PROV_DEV_MAX_NUM)
     {
         //MESH_APP_PRINT_INFO("app_mesh_unprov_dev is full\n");
         return (KE_MSG_CONSUMED);
     }
 
-    if (memcmp(temp_uuid, p_ind->dev_uuid, sizeof(temp_uuid)) != 0)
+    if (memcmp(temp_uuid, p_ind->dev_uuid, MESH_DEV_UUID_LEN) != 0)
     {
         app_mesh_unprov_dev[i].fActive = 0;
         return KE_MSG_CONSUMED;
@@ -992,12 +1069,6 @@ static int app_mesh_unprov_beacon_handler(ke_msg_id_t const msgid,
     for (int i = 0; i < MESH_KEY_LEN; i++)
     {
         app_key[i] = (i+0x0B)*i - i^3 + 17;
-    }
-
-    if (m_tb_state_get_prov_state() == M_TB_STATE_PROV_STATE_PROV)
-    {
-        // Stop Update the data to nvds when doing provisioning.
-        m_tb_store_config(0);
     }
 
     m_api_add_network_key(net_key_id, &net_key[0]);
@@ -1032,25 +1103,12 @@ mesh_tb_timer_t binding_timer;
 m_lid_t dev_lid_binding;
 
 mesh_tb_timer_t binding_timer_reset;
-mesh_tb_timer_t reprov_timer;
 
 void binding_timer_cb(void *timer)
 {
     MESH_APP_PRINT_INFO("binding_timer_cb\n");
 
     app_mesh_dev_compo_data_get(dev_lid_binding);
-}
-
-void reprov_timer_cb(void *timer)
-{
-    MESH_APP_PRINT_INFO("reprov_timer_cb\n");
-    for (int i = 0; i < UN_PROV_DEV_MAX_NUM; i++)
-    {
-        app_mesh_unprov_dev[i].fActive = 0;
-        memset(app_mesh_unprov_dev[i].dev_uuid, 0, MESH_DEV_UUID_LEN);
-        app_mesh_unprov_dev[i].oob_info = 0;
-        app_mesh_unprov_dev[i].uri_hash = 0;
-    }
 }
 
 static int app_mesh_dev_added_handler(ke_msg_id_t const msgid,
@@ -1124,7 +1182,7 @@ static void app_mesh_on_onff_loop(m_lid_t dev_lid)
     binding_timer.period = 5000;
     mesh_tb_timer_set(&binding_timer, binding_timer.period);
 }
- 
+
 static int app_mesh_model_app_sts_handler(ke_msg_id_t const msgid,
         void const *param,
         ke_task_id_t const dest_id,
@@ -1137,7 +1195,7 @@ static int app_mesh_model_app_sts_handler(ke_msg_id_t const msgid,
 
     if (p_ind && (p_ind->status == MESH_ERR_NO_ERROR))
     {
-        app_mesh_model_subs_add(p_ind->dev_lid, false, app_subs_addr);
+        app_mesh_model_subs_add(p_ind->dev_lid, true, app_subs_addr);
     }
 
     return (KE_MSG_CONSUMED);
@@ -1153,10 +1211,6 @@ static int app_mesh_model_subs_sts_handler(ke_msg_id_t const msgid,
                         __func__, p_ind->dev_lid, p_ind->status, p_ind->elem_addr,
                         p_ind->subs_addr, p_ind->model_id);
 
-    reprov_timer.cb = reprov_timer_cb;
-    reprov_timer.period = 1000;
-    mesh_tb_timer_set(&reprov_timer, reprov_timer.period);
-    m_tb_store_config(10);
     if (p_ind && (p_ind->status == MESH_ERR_NO_ERROR))
     {
         app_mesh_on_onff_loop(p_ind->dev_lid);
@@ -1182,6 +1236,8 @@ const struct ke_msg_handler app_mesh_msg_handler_list[] =
     {MESH_MDL_API_CMP_EVT,                      (ke_msg_func_t)app_mesh_model_api_cmp_handler},
 
     {MESH_API_PROV_AUTH_DATA_REQ_IND,           (ke_msg_func_t)app_mesh_api_prov_auth_data_req_ind_handler},
+
+    {MESH_API_PROV_PARAM_REQ_IND,              (ke_msg_func_t)app_mesh_api_prov_param_req_ind_handler},
 
     {MESH_API_ATTENTION_UPDATE_IND,            (ke_msg_func_t)app_mesh_api_prov_attention_update_ind_handler},
 

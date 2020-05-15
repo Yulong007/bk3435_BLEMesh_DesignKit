@@ -26,7 +26,7 @@
 
 #define MM_VENDORS_ATTR_MAX_NUM  16
 
-#define MM_ID_VENDORS                (0x01A80600)
+#define MM_ID_VENDORS                (0x01A80000)
 
 #define MM_VENDORS_REPLAY_MS         (6000)
 
@@ -126,10 +126,6 @@ uint16_t mm_vendors_register(uint8_t elmt_idx, m_lid_t *p_mdl_lid);
 bool mm_vendors_cfm_recved(void);
 
 void mm_vendors_cfm_clear(void);
-
-uint16_t mm_vendorc_transition(m_lid_t mdl_lid, m_lid_t app_key_lid, 
-                                           uint16_t dst, 
-                                           uint32_t opcode, uint8_t *data, uint16_t length);
 
 
 #endif // _MM_VENDORS_H_

@@ -323,11 +323,11 @@ __STATIC void mm_gens_oo_cb_rx(mm_tb_state_mdl_env_t *p_env, mesh_tb_buf_t *p_bu
     mm_gens_oo_env_t *p_env_oo = (mm_gens_oo_env_t *)p_env;
 
     {
-        MESH_MODEL_PRINT_ERR("mm_gens_oo_cb_rx,opcode = 0x%x\r\n", p_route_env->opcode);
+        MESH_MODEL_PRINT_DEBUG("mm_gens_oo_cb_rx,opcode = 0x%x\r\n", p_route_env->opcode);
         uint8_t *p_data = MESH_TB_BUF_DATA(p_buf);
-        MESH_MODEL_PRINT_ERR("###############################\r\n");
-        MESH_MODEL_PRINT_ERR("data: %s \n", mesh_buffer_to_hex(p_data, p_buf->data_len));
-        MESH_MODEL_PRINT_ERR("###############################\r\n");
+        MESH_MODEL_PRINT_DEBUG("###############################\r\n");
+        MESH_MODEL_PRINT_DEBUG("data: %s \n", mesh_buffer_to_hex(p_data, p_buf->data_len));
+        MESH_MODEL_PRINT_DEBUG("###############################\r\n");
     }
     if (p_route_env->opcode != MM_MSG_GEN_OO_GET)
     {

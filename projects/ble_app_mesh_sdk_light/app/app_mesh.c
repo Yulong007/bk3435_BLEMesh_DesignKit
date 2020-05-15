@@ -505,14 +505,6 @@ static int app_mesh_api_prov_auth_data_req_ind_handler(ke_msg_id_t const msgid,
     cfm->auth_data[9] = 0x5f; cfm->auth_data[10] = 0x67; cfm->auth_data[11] = 0x2a;
     cfm->auth_data[12] = 0x20; cfm->auth_data[13] = 0xb4; cfm->auth_data[14] = 0x2a;
     cfm->auth_data[15] = 0xc5;
-#else
-    // 78da07bcd71b; eddc0a4d10287aa2adce37866ad3f2e5
-    cfm->auth_data[0] = 0xe5; cfm->auth_data[1] = 0xf2; cfm->auth_data[2] = 0xd3;
-    cfm->auth_data[3] = 0x6a; cfm->auth_data[4] = 0x86; cfm->auth_data[5] = 0x37;
-    cfm->auth_data[6] = 0xce; cfm->auth_data[7] = 0xad; cfm->auth_data[8] = 0xa2;
-    cfm->auth_data[9] = 0x7a; cfm->auth_data[10] = 0x28; cfm->auth_data[11] = 0x10;
-    cfm->auth_data[12] = 0x4d; cfm->auth_data[13] = 0x0a; cfm->auth_data[14] = 0xdc;
-    cfm->auth_data[15] = 0xed;
 #endif // MAC78da07bcd71b
 
 #if TEST_MESH_OTA
@@ -536,37 +528,13 @@ static int app_mesh_api_prov_auth_data_req_ind_handler(ke_msg_id_t const msgid,
     return (KE_MSG_CONSUMED);
 }
 
-bool user_data_read_mac(uint8_t *addr, uint8_t mode)
-{
-
-    uint8_t l_addr[6];
-    flash_read_data(l_addr, 0x7E000, sizeof(l_addr));
-
-    if (mode)
-    {
-        memcpy(addr, l_addr, sizeof(l_addr));
-    }
-    else
-    {
-        for (int i = 0; i < sizeof(l_addr); i++)
-        {
-            addr[i] = l_addr[sizeof(l_addr) - 1 - i];
-        }
-    }
-    MESH_APP_PRINT_INFO("%s, addr = %s\n", __func__, mesh_buffer_to_hex(addr, sizeof(l_addr)));
-    return true;
-}
-
 static void app_get_prov_param(m_api_prov_param_cfm_t* cfm, uint8_t adv_type)
 {
-    uint8_t addr[6] = {0};
-    cfm->dev_uuid[0] = 0xa9; cfm->dev_uuid[1] = 0x01; // CID
+    cfm->dev_uuid[0] = 0xa8; cfm->dev_uuid[1] = 0x01; // CID
     cfm->dev_uuid[2] = 0x71;// PID
 
     cfm->dev_uuid[3] = 0x33; cfm->dev_uuid[4] = 0x02; cfm->dev_uuid[5] = 0x00; cfm->dev_uuid[6] = 0x00; // PRODUCT ID
-    cfm->dev_uuid[13] = 0x00; cfm->dev_uuid[14] = 0xaa; cfm->dev_uuid[15] = 0xaa; //RFU
-    cfm->uri_hash = 0x0;
-    cfm->oob_info = 0x0000;
+
 #if MAC78da07bcd71b
     cfm->dev_uuid[7] = 0x1b; cfm->dev_uuid[8] = 0xd7;
     cfm->dev_uuid[9] = 0xbc; cfm->dev_uuid[10] = 0x07;
@@ -588,11 +556,6 @@ static void app_get_prov_param(m_api_prov_param_cfm_t* cfm, uint8_t adv_type)
     cfm->dev_uuid[13] = 0x00; cfm->dev_uuid[14] = 0x00; cfm->dev_uuid[15] = 0x00; //RFU
     cfm->uri_hash = 0x0;
     cfm->oob_info = 0x0000;
-#else
-    if (user_data_read_mac(addr, 1))
-    {
-        memcpy(&cfm->dev_uuid[7], addr, sizeof(addr));
-    }
 #endif /* MAC78da07bcd71b */
 
     for (int i =0 ; i < 16; i++)

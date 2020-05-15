@@ -154,8 +154,6 @@ void mm_vendors_cfm_clear(void);
 
 void mm_vendor_attr_indication_publish(uint16_t attr_type,uint8_t len,uint8_t *value,uint16_t dst);
 
-uint16_t mm_vendorc_transition(m_lid_t mdl_lid, m_lid_t app_key_lid, 
-                                           uint16_t dst, 
-                                           uint32_t opcode, uint8_t *data, uint16_t length);
+
 
 #endif // _MM_VENDORS_H_

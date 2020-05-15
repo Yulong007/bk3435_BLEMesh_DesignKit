@@ -48,7 +48,7 @@
 /// Number of advertising transmission to perform
 #define M_ADV_NB_TX                          (5)     /* For improve the BLE  Mesh sending performance, change the number of advertising from 3 to 5. */
 /// Advertising interval - 100ms - 160 slots
-#define M_ADV_INTERVAL                       (32 * 10) // 80
+#define M_ADV_INTERVAL                       (32 * 8) // 80
 /// Network Advertising interval - 20ms - 32 slotss
 #define M_ADV_NET_INTERVAL                   (48)
 /// Advertising interval - 20ms - 32 slotss

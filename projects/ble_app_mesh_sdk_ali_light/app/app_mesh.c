@@ -58,6 +58,7 @@
 #include "m_fnd_Fw_Update.h"
 #include "m_fnd_BLOB_Transfer.h"
 #include "gpio.h"
+#include "mal_int.h"
 
 /*
  * LOCATION FUN DEFINES
@@ -215,7 +216,24 @@ __STATIC void app_unprov_adv_cb_timerout(void *p_env)
 #if (UNPROV_TIMEOUT_ADV)
     rwip_prevent_sleep_set(BK_MESH_ACTIVE);
     m_api_prov_param_cfm_t *cfm = KE_MSG_ALLOC(MESH_API_PROV_PARAM_CFM, prf_get_task_from_id(TASK_ID_MESH), TASK_APP, m_api_prov_param_cfm);
+   // uint8_t scanrsp_data[25] = {0x03, 0x02, 0xB3, 0xFE, 0x04, 0x09, 0x4D, 0x65, 0x73, 0x0F, 0xFF, 0xA8, 0x01, 0x85, 0x1D, \
+   //                                   0x7C, 0x24, 0x00, 0x00, 0x48, 0x09, 0x5E, 0x63, 0xA7, 0xF8};
+#if 1
+    uint8_t scanrsp_data[28] = {
+        0x03, // Service UUID type len
+        0x02, // Service UUID type
+        0xB3, 0xFE, //Ali Service "Taobao"
+        0x05, // Name type len
+        0x09, // Name type
+        'M', 'E', 'S', 'H', // Name
+        0x0f, //Menufautre type len
+        0xFF, // Menufature type
+        0xa8, 0x01, 0x85, 0x1D, 0x26, 0x2f, 0x00, 0x00, 0x1b, 0xd7, 0xbc, 0x07, 0xda, 0x78
+    };
+
+#endif 
     app_get_prov_param(cfm, 1);
+    mal_set_scanrsp_data(scanrsp_data, 28);
     ke_msg_send(cfm);
     m_link_open_ack_dis();
     m_stack_param.m_adv_interval = 200;
@@ -584,16 +602,32 @@ static int app_mesh_api_prov_auth_data_req_ind_handler(ke_msg_id_t const msgid,
 
 static void app_get_prov_param(m_api_prov_param_cfm_t* cfm, uint8_t adv_type)
 {
+#if 1
+    cfm->dev_uuid[0] = 0xa8; cfm->dev_uuid[1] = 0x01; // CID
+    cfm->dev_uuid[2] = 0x71;// PID
+
+    cfm->dev_uuid[3] = 0x26; cfm->dev_uuid[4] = 0x2F; cfm->dev_uuid[5] = 0x00; cfm->dev_uuid[6] = 0x00; // PRODUCT ID
+
+// #if MAC78da07bcd71b
+    cfm->dev_uuid[7] = 0x48; cfm->dev_uuid[8] = 0x09;
+    cfm->dev_uuid[9] = 0x5E; cfm->dev_uuid[10] = 0x63;
+    cfm->dev_uuid[11] = 0xA7; cfm->dev_uuid[12] = 0xF8; //MAC
+    cfm->dev_uuid[13] = 0x02; cfm->dev_uuid[14] = 0x00; cfm->dev_uuid[15] = 0x00; //RFU
+    cfm->uri_hash = 0x0;
+    cfm->oob_info = 0x0000;
+#endif
+#if 0
     cfm->dev_uuid[0] = 0xa8; cfm->dev_uuid[1] = 0x01; // CID
     cfm->dev_uuid[2] = 0x71;// PID
 
     cfm->dev_uuid[3] = 0x33; cfm->dev_uuid[4] = 0x02; cfm->dev_uuid[5] = 0x00; cfm->dev_uuid[6] = 0x00; // PRODUCT ID
+#endif
 
 #if MAC78da07bcd71b
     cfm->dev_uuid[7] = 0x1b; cfm->dev_uuid[8] = 0xd7;
     cfm->dev_uuid[9] = 0xbc; cfm->dev_uuid[10] = 0x07;
     cfm->dev_uuid[11] = 0xda; cfm->dev_uuid[12] = 0x78; //MAC
-    cfm->dev_uuid[13] = 0x00; cfm->dev_uuid[14] = 0x00; cfm->dev_uuid[15] = 0x00; //RFU
+    cfm->dev_uuid[13] = 0x00; cfm->dev_uuid[14] = 0xaa; cfm->dev_uuid[15] = 0xaa; //RFU
     cfm->uri_hash = 0x0;
     cfm->oob_info = 0x0000;
 #elif   MAC78da07bcd71c
@@ -686,10 +720,25 @@ static int app_mesh_api_prov_param_req_ind_handler(ke_msg_id_t const msgid,
         ke_task_id_t const src_id)
 {
     MESH_APP_PRINT_INFO("app_mesh_api_prov_param_req_ind_handler.\n");
-    //sean add
+
     m_api_prov_param_cfm_t *cfm = KE_MSG_ALLOC(MESH_API_PROV_PARAM_CFM, prf_get_task_from_id(TASK_ID_MESH), TASK_APP, m_api_prov_param_cfm);
 
+    uint8_t scanrsp_data[26] = {
+        0x03, // Service UUID type len
+        0x02, // Service UUID type
+        0xB3, 0xFE, //Ali Service "Taobao"
+        0x05, // Name type len
+        0x09, // Name type
+        'M', 'E', 'S', 'H', // Name
+        0x0f, //Menufautre type len
+        0xFF, // Menufature type
+        0xa8, 0x01, 0x85, 0x01, 
+    };
+
     app_get_prov_param(cfm, 0);
+    memcpy(&scanrsp_data[sizeof(scanrsp_data) - 10], &cfm->dev_uuid[3], 10);
+    mal_set_scanrsp_data(scanrsp_data, sizeof(scanrsp_data));
+
     ke_msg_send(cfm);
 
     return (KE_MSG_CONSUMED);

@@ -488,11 +488,11 @@ static int app_mesh_msg_key_ind_handler(ke_msg_id_t const msgid,
 
 			///add 0312      
 			g_app_key_id = app_key->app_key_id;
-			// #if UART_CMD_PROV_EN
+			#if UART_CMD_PROV_EN
 			
 			user_models_bind_app_key(app_key->app_key_id);    
-			// #endif
-
+			#endif
+			  
 			//user_models_bind_app_key(app_key_id);        
 			#if 0//UART_CMD_PROV_EN
 				#if 0        
@@ -704,7 +704,7 @@ extern bool user_data_contains_ali_data(void);
 extern bool user_data_read_ali_mac(uint8_t *addr, uint8_t mode);
 static void app_get_prov_param(m_api_prov_param_cfm_t* cfm, uint8_t adv_type)
 {
-    cfm->dev_uuid[0] = 0xa9; cfm->dev_uuid[1] = 0x01; // CID
+    cfm->dev_uuid[0] = 0xa8; cfm->dev_uuid[1] = 0x01; // CID
     cfm->dev_uuid[2] = 0x71;// PID
 
     cfm->dev_uuid[3] = 0x33; cfm->dev_uuid[4] = 0x02; cfm->dev_uuid[5] = 0x00; cfm->dev_uuid[6] = 0x00; // PRODUCT ID
