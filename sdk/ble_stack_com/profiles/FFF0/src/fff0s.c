@@ -165,7 +165,7 @@ void fff0s_notify_fff1_lvl(struct fff0s_env_tag *fff0s_env, struct fff0s_fff1_le
 {
     // Allocate the GATT notification message
     struct gattc_send_evt_cmd *fff1_lvl = KE_MSG_ALLOC_DYN(GATTC_SEND_EVT_CMD,
-                                          KE_BUILD_ID(TASK_GATTC, 0), prf_src_task_get(&(fff0s_env->prf_env), 0),
+                                          KE_BUILD_ID(TASK_GATTC, param->conidx), prf_src_task_get(&(fff0s_env->prf_env), param->conidx),  ///change conix 0 -> param->conidx ///20 0527
                                           gattc_send_evt_cmd, sizeof(uint8_t) * (param->length));
 
     // Fill in the parameter structure
